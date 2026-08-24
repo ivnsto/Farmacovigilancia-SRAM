@@ -1,1 +1,119 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración SRAM</title><link rel="stylesheet" href="styles.css"><script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body><div class="wrap"><header class="card"><h1>Panel de reportes SRAM</h1><p class="note">Prototipo administrativo. Antes de producción debe protegerse con autenticación.</p></header><section class="card"><div class="actions"><button class="primary" id="load">Cargar reportes</button><button class="secondary" id="csv">Exportar CSV</button><span id="msg" class="status"></span></div><div style="overflow:auto"><table><thead><tr><th>Folio</th><th>Fecha</th><th>Unidad</th><th>Iniciales</th><th>Medicamento</th><th>SRAM</th><th>Gravedad</th></tr></thead><tbody id="rows"></tbody></table></div></section></div><script src="admin.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Administración SRAM</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <!-- LOGIN -->
+  <section class="card" id="loginPanel">
+    <h1>Administración SRAM</h1>
+
+    <p class="note">
+      Acceso exclusivo para personal autorizado.
+    </p>
+
+    <form id="loginForm">
+
+      <label for="email">Correo electrónico</label>
+      <input
+        type="email"
+        id="email"
+        required
+        autocomplete="username"
+        placeholder="Correo electrónico"
+      >
+
+      <label for="password">Contraseña</label>
+      <input
+        type="password"
+        id="password"
+        required
+        autocomplete="current-password"
+        placeholder="Contraseña"
+      >
+
+      <button class="primary" type="submit">
+        Iniciar sesión
+      </button>
+
+      <p id="loginMsg" class="status"></p>
+
+    </form>
+  </section>
+
+
+  <!-- PANEL ADMINISTRATIVO -->
+  <section class="card" id="adminPanel" hidden>
+
+    <header>
+      <h1>Panel de reportes SRAM</h1>
+
+      <p class="note">
+        Reportes de sospecha de reacciones adversas a medicamentos.
+      </p>
+
+      <p>
+        Usuario:
+        <strong id="userEmail"></strong>
+      </p>
+    </header>
+
+    <div class="actions">
+
+      <button class="primary" id="load">
+        Cargar reportes
+      </button>
+
+      <button class="secondary" id="csv">
+        Exportar CSV
+      </button>
+
+      <button class="secondary" id="logout">
+        Cerrar sesión
+      </button>
+
+      <span id="msg" class="status"></span>
+
+    </div>
+
+    <div style="overflow:auto">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Unidad</th>
+            <th>Iniciales</th>
+            <th>Medicamento</th>
+            <th>SRAM</th>
+            <th>Gravedad</th>
+          </tr>
+        </thead>
+
+        <tbody id="rows"></tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>
