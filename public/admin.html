@@ -17,6 +17,7 @@
 
   <!-- LOGIN -->
   <section class="card" id="loginPanel">
+
     <h1>Administración SRAM</h1>
 
     <p class="note">
@@ -26,6 +27,7 @@
     <form id="loginForm">
 
       <label for="email">Correo electrónico</label>
+
       <input
         type="email"
         id="email"
@@ -35,6 +37,7 @@
       >
 
       <label for="password">Contraseña</label>
+
       <input
         type="password"
         id="password"
@@ -50,6 +53,7 @@
       <p id="loginMsg" class="status"></p>
 
     </form>
+
   </section>
 
 
@@ -57,6 +61,7 @@
   <section class="card" id="adminPanel" hidden>
 
     <header>
+
       <h1>Panel de reportes SRAM</h1>
 
       <p class="note">
@@ -67,7 +72,9 @@
         Usuario:
         <strong id="userEmail"></strong>
       </p>
+
     </header>
+
 
     <div class="actions">
 
@@ -87,11 +94,13 @@
 
     </div>
 
+
     <div style="overflow:auto">
 
       <table>
 
         <thead>
+
           <tr>
             <th>Folio</th>
             <th>Fecha</th>
@@ -100,7 +109,9 @@
             <th>Medicamento</th>
             <th>SRAM</th>
             <th>Gravedad</th>
+            <th>Reporte</th>
           </tr>
+
         </thead>
 
         <tbody id="rows"></tbody>
@@ -112,6 +123,62 @@
   </section>
 
 </div>
+
+
+<!-- VENTANA DE DETALLE DEL REPORTE -->
+
+<div
+  id="detailModal"
+  hidden
+  style="
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:9999;
+    padding:20px;
+    overflow:auto;
+  "
+>
+
+  <div
+    class="card"
+    style="
+      max-width:1000px;
+      margin:30px auto;
+      max-height:90vh;
+      overflow:auto;
+    "
+  >
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:15px;
+      "
+    >
+
+      <h2>Detalle del reporte SRAM</h2>
+
+      <button
+        class="secondary"
+        id="closeDetail"
+        type="button"
+      >
+        Cerrar
+      </button>
+
+    </div>
+
+    <hr>
+
+    <div id="detailContent"></div>
+
+  </div>
+
+</div>
+
 
 <script src="admin.js"></script>
 
