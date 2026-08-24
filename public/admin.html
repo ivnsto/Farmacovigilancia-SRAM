@@ -1,8 +1,10 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+
   <title>Administración SRAM</title>
 
   <link rel="stylesheet" href="styles.css">
@@ -16,6 +18,7 @@
 <div class="wrap">
 
   <!-- LOGIN -->
+
   <section class="card" id="loginPanel">
 
     <h1>Administración SRAM</h1>
@@ -26,7 +29,9 @@
 
     <form id="loginForm">
 
-      <label for="email">Correo electrónico</label>
+      <label for="email">
+        Correo electrónico
+      </label>
 
       <input
         type="email"
@@ -36,7 +41,9 @@
         placeholder="Correo electrónico"
       >
 
-      <label for="password">Contraseña</label>
+      <label for="password">
+        Contraseña
+      </label>
 
       <input
         type="password"
@@ -46,54 +53,216 @@
         placeholder="Contraseña"
       >
 
-      <button class="primary" type="submit">
+      <button
+        class="primary"
+        type="submit"
+      >
         Iniciar sesión
       </button>
 
-      <p id="loginMsg" class="status"></p>
+      <p
+        id="loginMsg"
+        class="status"
+      ></p>
 
     </form>
 
   </section>
 
 
-  <!-- PANEL ADMINISTRATIVO -->
-  <section class="card" id="adminPanel" hidden>
+  <!-- PANEL -->
 
-    <header>
+  <section
+    class="card"
+    id="adminPanel"
+    hidden
+  >
 
-      <h1>Panel de reportes SRAM</h1>
+    <!-- CABECERA -->
 
-      <p class="note">
-        Reportes de sospecha de reacciones adversas a medicamentos.
-      </p>
+    <header
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:20px;
+        flex-wrap:wrap;
+      "
+    >
 
-      <p>
-        Usuario:
-        <strong id="userEmail"></strong>
-      </p>
+      <div>
+
+        <h1>
+          Panel de reportes SRAM
+        </h1>
+
+        <p class="note">
+          Administración de reportes de sospecha de reacciones adversas a medicamentos.
+        </p>
+
+        <p>
+          Usuario:
+          <strong id="userEmail"></strong>
+        </p>
+
+      </div>
+
+
+      <!-- CERRAR SESIÓN -->
+
+      <button
+        id="logout"
+        type="button"
+        style="
+          background:#8b1e1e;
+          color:white;
+          border:0;
+          border-radius:8px;
+          padding:12px 20px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        🔒 Cerrar sesión
+      </button>
 
     </header>
 
 
-    <div class="actions">
+    <hr>
 
-      <button class="primary" id="load">
-        Cargar reportes
-      </button>
 
-      <button class="secondary" id="csv">
-        Exportar CSV
-      </button>
+    <!-- FILTROS -->
 
-      <button class="secondary" id="logout">
-        Cerrar sesión
-      </button>
+    <h2>
+      Buscar reportes
+    </h2>
 
-      <span id="msg" class="status"></span>
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:
+          minmax(220px,2fr)
+          minmax(150px,1fr)
+          minmax(150px,1fr)
+          minmax(150px,1fr);
+        gap:12px;
+        margin-bottom:15px;
+      "
+    >
+
+      <div>
+
+        <label for="search">
+          Folio, paciente o medicamento
+        </label>
+
+        <input
+          type="search"
+          id="search"
+          placeholder="Buscar..."
+        >
+
+      </div>
+
+
+      <div>
+
+        <label for="severity">
+          Gravedad
+        </label>
+
+        <select id="severity">
+
+          <option value="">
+            Todas
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label for="dateFrom">
+          Fecha desde
+        </label>
+
+        <input
+          type="date"
+          id="dateFrom"
+        >
+
+      </div>
+
+
+      <div>
+
+        <label for="dateTo">
+          Fecha hasta
+        </label>
+
+        <input
+          type="date"
+          id="dateTo"
+        >
+
+      </div>
 
     </div>
 
+
+    <!-- BOTONES -->
+
+    <div class="actions">
+
+      <button
+        class="primary"
+        id="load"
+        type="button"
+      >
+        🔄 Cargar reportes
+      </button>
+
+
+      <button
+        class="primary"
+        id="searchBtn"
+        type="button"
+      >
+        🔎 Buscar
+      </button>
+
+
+      <button
+        class="secondary"
+        id="clearFilters"
+        type="button"
+      >
+        Limpiar filtros
+      </button>
+
+
+      <button
+        class="secondary"
+        id="csv"
+        type="button"
+      >
+        📥 Exportar CSV
+      </button>
+
+
+      <span
+        id="msg"
+        class="status"
+      ></span>
+
+    </div>
+
+
+    <!-- TABLA -->
 
     <div style="overflow:auto">
 
@@ -102,17 +271,27 @@
         <thead>
 
           <tr>
+
             <th>Folio</th>
+
             <th>Fecha</th>
+
             <th>Unidad</th>
+
             <th>Iniciales</th>
+
             <th>Medicamento</th>
+
             <th>SRAM</th>
+
             <th>Gravedad</th>
-            <th>Reporte</th>
+
+            <th>Acciones</th>
+
           </tr>
 
         </thead>
+
 
         <tbody id="rows"></tbody>
 
@@ -125,7 +304,7 @@
 </div>
 
 
-<!-- VENTANA DE DETALLE DEL REPORTE -->
+<!-- MODAL DETALLE -->
 
 <div
   id="detailModal"
@@ -133,7 +312,7 @@
   style="
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.55);
+    background:rgba(0,0,0,.60);
     z-index:9999;
     padding:20px;
     overflow:auto;
@@ -144,8 +323,8 @@
     class="card"
     style="
       max-width:1000px;
-      margin:30px auto;
-      max-height:90vh;
+      margin:20px auto;
+      max-height:92vh;
       overflow:auto;
     "
   >
@@ -159,19 +338,37 @@
       "
     >
 
-      <h2>Detalle del reporte SRAM</h2>
+      <h2>
+        Detalle del reporte SRAM
+      </h2>
 
-      <button
-        class="secondary"
-        id="closeDetail"
-        type="button"
-      >
-        Cerrar
-      </button>
+
+      <div>
+
+        <button
+          class="primary"
+          id="printDetail"
+          type="button"
+        >
+          🖨️ Imprimir reporte
+        </button>
+
+
+        <button
+          class="secondary"
+          id="closeDetail"
+          type="button"
+        >
+          Cerrar
+        </button>
+
+      </div>
 
     </div>
 
+
     <hr>
+
 
     <div id="detailContent"></div>
 
