@@ -11,14 +11,23 @@ const userEmail = document.getElementById("userEmail");
 const msg = document.getElementById("msg");
 const rows = document.getElementById("rows");
 
+const detailModal = document.getElementById("detailModal");
+const detailContent = document.getElementById("detailContent");
+const closeDetail = document.getElementById("closeDetail");
+
+
 const sb = supabase.createClient(
   window.SUPABASE_URL,
   window.SUPABASE_ANON_KEY
 );
 
 
-// Escapar texto para evitar insertar HTML directamente
+// --------------------------------------------------
+// ESCAPAR HTML
+// --------------------------------------------------
+
 function esc(x) {
+
   return String(x ?? "").replace(
     /[&<>"']/g,
     c => ({
@@ -29,10 +38,49 @@ function esc(x) {
       "'": "&#39;"
     }[c])
   );
+
 }
 
 
-// Mostrar panel administrativo
+// --------------------------------------------------
+// FORMATEAR VALORES
+// --------------------------------------------------
+
+function formatValue(value) {
+
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
+
+  if (Array.isArray(value)) {
+
+    return value
+      .map(v => String(v))
+      .join(" | ");
+
+  }
+
+  if (typeof value === "boolean") {
+
+    return value ? "Sí" : "No";
+
+  }
+
+  if (typeof value === "object") {
+
+    return JSON.stringify(value);
+
+  }
+
+  return String(value);
+
+}
+
+
+// --------------------------------------------------
+// MOSTRAR PANEL
+// --------------------------------------------------
+
 function showAdmin(user) {
 
   loginPanel.hidden = true;
@@ -43,7 +91,10 @@ function showAdmin(user) {
 }
 
 
-// Mostrar login
+// --------------------------------------------------
+// MOSTRAR LOGIN
+// --------------------------------------------------
+
 function showLogin() {
 
   loginPanel.hidden = false;
@@ -54,7 +105,10 @@ function showLogin() {
 }
 
 
-// Verificar sesión existente
+// --------------------------------------------------
+// COMPROBAR SESIÓN
+// --------------------------------------------------
+
 async function checkSession() {
 
   const {
@@ -74,15 +128,22 @@ async function checkSession() {
 }
 
 
-// Iniciar sesión
+// --------------------------------------------------
+// LOGIN
+// --------------------------------------------------
+
 async function login(event) {
 
   event.preventDefault();
 
   loginMsg.textContent = "Iniciando sesión...";
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
 
   const {
     data,
@@ -92,6 +153,7 @@ async function login(event) {
     password
   });
 
+
   if (error) {
 
     console.error(error);
@@ -100,7 +162,9 @@ async function login(event) {
       "Correo o contraseña incorrectos.";
 
     return;
+
   }
+
 
   loginMsg.textContent = "";
 
@@ -109,7 +173,10 @@ async function login(event) {
 }
 
 
-// Cerrar sesión
+// --------------------------------------------------
+// LOGOUT
+// --------------------------------------------------
+
 async function logout() {
 
   await sb.auth.signOut();
@@ -120,26 +187,35 @@ async function logout() {
 
   msg.textContent = "";
 
+  closeReport();
+
   showLogin();
 
 }
 
 
-// Cargar reportes
+// --------------------------------------------------
+// CARGAR REPORTES
+// --------------------------------------------------
+
 async function loadReports() {
 
   msg.textContent = "Cargando reportes...";
 
+
   const {
     data: { user }
   } = await sb.auth.getUser();
+
 
   if (!user) {
 
     showLogin();
 
     return;
+
   }
+
 
   const {
     data,
@@ -151,6 +227,7 @@ async function loadReports() {
       ascending: false
     });
 
+
   if (error) {
 
     console.error(error);
@@ -159,28 +236,213 @@ async function loadReports() {
       "No autorizado o error de conexión.";
 
     return;
+
   }
+
 
   reports = data || [];
 
-  rows.innerHTML = reports.map(r => `
+
+  rows.innerHTML = reports.map((r, index) => `
+
     <tr>
+
       <td>${esc(r.folio)}</td>
+
       <td>${esc(r.created_at)}</td>
+
       <td>${esc(r.unidad_notifica)}</td>
+
       <td>${esc(r.iniciales)}</td>
+
       <td>${esc(r.med_generico)}</td>
+
       <td>${esc(r.sram_notificada)}</td>
+
       <td>${esc(r.gravedad)}</td>
+
+      <td>
+
+        <button
+          class="secondary view-report"
+          type="button"
+          data-index="${index}"
+        >
+          Ver reporte
+        </button>
+
+      </td>
+
     </tr>
+
   `).join("");
+
+
+  document
+    .querySelectorAll(".view-report")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const index =
+            Number(button.dataset.index);
+
+          openReport(index);
+
+        }
+      );
+
+    });
+
 
   msg.textContent =
     `${reports.length} reportes`;
+
 }
 
 
-// Exportar CSV
+// --------------------------------------------------
+// ABRIR REPORTE COMPLETO
+// --------------------------------------------------
+
+function openReport(index) {
+
+  const report = reports[index];
+
+  if (!report) return;
+
+
+  detailContent.innerHTML = "";
+
+
+  const table =
+    document.createElement("table");
+
+
+  table.style.width = "100%";
+
+
+  const tbody =
+    document.createElement("tbody");
+
+
+  Object.entries(report).forEach(
+    ([key, value]) => {
+
+      const tr =
+        document.createElement("tr");
+
+
+      const th =
+        document.createElement("th");
+
+
+      const td =
+        document.createElement("td");
+
+
+      th.textContent =
+        humanizeField(key);
+
+
+      td.textContent =
+        formatValue(value);
+
+
+      th.style.textAlign = "left";
+      th.style.verticalAlign = "top";
+      th.style.padding = "10px";
+      th.style.width = "32%";
+
+
+      td.style.padding = "10px";
+      td.style.whiteSpace = "pre-wrap";
+      td.style.wordBreak = "break-word";
+
+
+      tr.appendChild(th);
+      tr.appendChild(td);
+
+      tbody.appendChild(tr);
+
+    }
+  );
+
+
+  table.appendChild(tbody);
+
+  detailContent.appendChild(table);
+
+
+  detailModal.hidden = false;
+
+}
+
+
+// --------------------------------------------------
+// NOMBRES DE CAMPOS MÁS LEGIBLES
+// --------------------------------------------------
+
+function humanizeField(key) {
+
+  const names = {
+
+    folio: "Folio",
+
+    created_at: "Fecha de registro",
+
+    iniciales: "Iniciales del paciente",
+
+    nombre_paciente: "Nombre del paciente",
+
+    med_generico: "Medicamento genérico",
+
+    sram_notificada: "SRAM notificada",
+
+    gravedad: "Gravedad",
+
+    causalidad: "Causalidad",
+
+    unidad_notifica: "Unidad que notifica",
+
+    confirmacion: "Confirmación",
+
+  };
+
+
+  if (names[key]) {
+
+    return names[key];
+
+  }
+
+
+  return key
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+}
+
+
+// --------------------------------------------------
+// CERRAR REPORTE
+// --------------------------------------------------
+
+function closeReport() {
+
+  detailModal.hidden = true;
+
+  detailContent.innerHTML = "";
+
+}
+
+
+// --------------------------------------------------
+// EXPORTAR CSV
+// --------------------------------------------------
+
 function csv() {
 
   if (!reports.length) {
@@ -188,12 +450,18 @@ function csv() {
     alert("Carga los reportes primero.");
 
     return;
+
   }
 
-  const keys = Object.keys(reports[0]);
+
+  const keys =
+    Object.keys(reports[0]);
+
 
   const q = value =>
-    `"${String(value ?? "").replaceAll('"', '""')}"`;
+    `"${String(value ?? "")
+      .replaceAll('"', '""')}"`;
+
 
   const text =
     keys.join(",") +
@@ -212,19 +480,30 @@ function csv() {
       )
       .join("\n");
 
-  const blob = new Blob(
-    ["\ufeff" + text],
-    {
-      type: "text/csv;charset=utf-8"
-    }
-  );
 
-  const url = URL.createObjectURL(blob);
+  const blob =
+    new Blob(
+      ["\ufeff" + text],
+      {
+        type:
+          "text/csv;charset=utf-8"
+      }
+    );
 
-  const a = document.createElement("a");
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement("a");
+
 
   a.href = url;
-  a.download = "reportes_sram.csv";
+
+  a.download =
+    "reportes_sram.csv";
+
 
   document.body.appendChild(a);
 
@@ -232,22 +511,54 @@ function csv() {
 
   a.remove();
 
+
   URL.revokeObjectURL(url);
+
 }
 
 
-// Eventos
-loginForm.addEventListener("submit", login);
+// --------------------------------------------------
+// EVENTOS
+// --------------------------------------------------
 
-document.getElementById("load").onclick =
-  loadReports;
-
-document.getElementById("csv").onclick =
-  csv;
-
-document.getElementById("logout").onclick =
-  logout;
+loginForm.addEventListener(
+  "submit",
+  login
+);
 
 
-// Inicializar
+document.getElementById("load")
+  .onclick = loadReports;
+
+
+document.getElementById("csv")
+  .onclick = csv;
+
+
+document.getElementById("logout")
+  .onclick = logout;
+
+
+closeDetail.onclick =
+  closeReport;
+
+
+detailModal.addEventListener(
+  "click",
+  event => {
+
+    if (event.target === detailModal) {
+
+      closeReport();
+
+    }
+
+  }
+);
+
+
+// --------------------------------------------------
+// INICIAR
+// --------------------------------------------------
+
 checkSession();
