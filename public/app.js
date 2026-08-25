@@ -141,16 +141,12 @@ form.addEventListener("submit", async e => {
     window.SUPABASE_ANON_KEY
   );
 
-  const payload = collect();
+ const payload = collect();
 
-  /*
-   * La política RLS de Supabase exige
-   * confirmacion = true.
-   *
-   * En este punto ya verificamos que
-   * el usuario marcó la casilla.
-   */
-  payload.confirmacion = true;
+console.log(
+  "Datos enviados a Supabase:",
+  payload
+);
 
   try {
 
