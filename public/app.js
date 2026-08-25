@@ -159,11 +159,9 @@ form.addEventListener("submit", async e => {
       payload
     );
 
-    const { data, error } = await sb
-      .from("sram_reports")
-      .insert(payload)
-      .select("folio")
-      .single();
+    const { error } = await sb
+  .from("sram_reports")
+  .insert(payload);
 
     if (error) {
       throw error;
@@ -175,8 +173,7 @@ form.addEventListener("submit", async e => {
     // Reiniciar progreso
     bar.style.width = "0%";
 
-    const folioGuardado =
-      data?.folio || payload.folio;
+    const folioGuardado = payload.folio;
 
     statusEl.textContent =
       `Reporte enviado. Folio: ${folioGuardado}`;
