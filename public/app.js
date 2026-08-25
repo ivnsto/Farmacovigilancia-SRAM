@@ -141,19 +141,14 @@ form.addEventListener("submit", async e => {
     window.SUPABASE_ANON_KEY
   );
 
- const payload = collect();
+const payload = collect();
 
-console.log(
-  "Datos enviados a Supabase:",
-  payload
-);
+try {
 
-  try {
-
-    console.log(
-      "Datos enviados a Supabase:",
-      payload
-    );
+  console.log(
+    "Datos enviados a Supabase:",
+    payload
+  );
 
     const { error } = await sb
   .from("sram_reports")
