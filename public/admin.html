@@ -11,13 +11,22 @@
 
   <script src="supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <!-- PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
 
 <div class="wrap">
 
+  <!-- ================================================= -->
   <!-- LOGIN -->
+  <!-- ================================================= -->
 
   <section class="card" id="loginPanel">
 
@@ -60,17 +69,16 @@
         Iniciar sesión
       </button>
 
-      <p
-        id="loginMsg"
-        class="status"
-      ></p>
+      <p id="loginMsg" class="status"></p>
 
     </form>
 
   </section>
 
 
-  <!-- PANEL -->
+  <!-- ================================================= -->
+  <!-- PANEL ADMINISTRATIVO -->
+  <!-- ================================================= -->
 
   <section
     class="card"
@@ -107,9 +115,6 @@
 
       </div>
 
-
-      <!-- CERRAR SESIÓN -->
-
       <button
         id="logout"
         type="button"
@@ -132,12 +137,64 @@
     <hr>
 
 
+    <!-- ================================================= -->
+    <!-- INDICADORES -->
+    <!-- ================================================= -->
+
+    <h2>
+      Resumen de reportes
+    </h2>
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:
+          repeat(auto-fit,minmax(150px,1fr));
+        gap:12px;
+        margin-bottom:25px;
+      "
+    >
+
+      <div class="card" style="margin:0;text-align:center;">
+        <strong>Total</strong>
+        <div id="statTotal" style="font-size:28px;font-weight:bold;">0</div>
+      </div>
+
+      <div class="card" style="margin:0;text-align:center;">
+        <strong>Nuevos</strong>
+        <div id="statNuevo" style="font-size:28px;font-weight:bold;">0</div>
+      </div>
+
+      <div class="card" style="margin:0;text-align:center;">
+        <strong>En revisión</strong>
+        <div id="statRevision" style="font-size:28px;font-weight:bold;">0</div>
+      </div>
+
+      <div class="card" style="margin:0;text-align:center;">
+        <strong>En evaluación</strong>
+        <div id="statEvaluacion" style="font-size:28px;font-weight:bold;">0</div>
+      </div>
+
+      <div class="card" style="margin:0;text-align:center;">
+        <strong>Cerrados</strong>
+        <div id="statCerrado" style="font-size:28px;font-weight:bold;">0</div>
+      </div>
+
+      <div class="card" style="margin:0;text-align:center;">
+        <strong>Graves</strong>
+        <div id="statGraves" style="font-size:28px;font-weight:bold;">0</div>
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
     <!-- FILTROS -->
+    <!-- ================================================= -->
 
     <h2>
       Buscar reportes
     </h2>
-
 
     <div
       style="
@@ -186,6 +243,74 @@
 
       <div>
 
+        <label for="statusFilter">
+          Estatus
+        </label>
+
+        <select id="statusFilter">
+
+          <option value="">
+            Todos
+          </option>
+
+          <option value="Nuevo">
+            Nuevo
+          </option>
+
+          <option value="En revisión">
+            En revisión
+          </option>
+
+          <option value="En evaluación">
+            En evaluación
+          </option>
+
+          <option value="Cerrado">
+            Cerrado
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label for="causalityFilter">
+          Causalidad
+        </label>
+
+        <select id="causalityFilter">
+
+          <option value="">
+            Todas
+          </option>
+
+          <option>Definida</option>
+          <option>Probable</option>
+          <option>Posible</option>
+          <option>Dudosa</option>
+          <option>No evaluable</option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div
+      style="
+        display:grid;
+        grid-template-columns:
+          repeat(2,minmax(150px,1fr));
+        gap:12px;
+        margin-bottom:15px;
+      "
+    >
+
+      <div>
+
         <label for="dateFrom">
           Fecha desde
         </label>
@@ -214,7 +339,9 @@
     </div>
 
 
+    <!-- ================================================= -->
     <!-- BOTONES -->
+    <!-- ================================================= -->
 
     <div class="actions">
 
@@ -254,6 +381,33 @@
       </button>
 
 
+      <button
+        class="secondary"
+        id="exportExcel"
+        type="button"
+      >
+        📊 Excel
+      </button>
+
+
+      <button
+        class="secondary"
+        id="exportSelectedExcel"
+        type="button"
+      >
+        📊 Excel seleccionados
+      </button>
+
+
+      <button
+        class="secondary"
+        id="exportSelectedPdf"
+        type="button"
+      >
+        📄 PDF seleccionados
+      </button>
+
+
       <span
         id="msg"
         class="status"
@@ -262,7 +416,41 @@
     </div>
 
 
+    <!-- ================================================= -->
+    <!-- SELECCIÓN MÚLTIPLE -->
+    <!-- ================================================= -->
+
+    <div
+      style="
+        margin:15px 0;
+        padding:12px;
+        background:#f4f6f7;
+        border-radius:8px;
+      "
+    >
+
+      <label>
+        <input
+          type="checkbox"
+          id="selectAll"
+        >
+
+        Seleccionar todos los reportes visibles
+      </label>
+
+      <span
+        id="selectedCount"
+        style="margin-left:15px;font-weight:bold;"
+      >
+        0 seleccionados
+      </span>
+
+    </div>
+
+
+    <!-- ================================================= -->
     <!-- TABLA -->
+    <!-- ================================================= -->
 
     <div style="overflow:auto">
 
@@ -272,21 +460,45 @@
 
           <tr>
 
-            <th>Folio</th>
+            <th>
+              Seleccionar
+            </th>
 
-            <th>Fecha</th>
+            <th>
+              Folio
+            </th>
 
-            <th>Unidad</th>
+            <th>
+              Fecha
+            </th>
 
-            <th>Iniciales</th>
+            <th>
+              Unidad
+            </th>
 
-            <th>Medicamento</th>
+            <th>
+              Iniciales
+            </th>
 
-            <th>SRAM</th>
+            <th>
+              Medicamento
+            </th>
 
-            <th>Gravedad</th>
+            <th>
+              SRAM
+            </th>
 
-            <th>Acciones</th>
+            <th>
+              Gravedad
+            </th>
+
+            <th>
+              Estatus
+            </th>
+
+            <th>
+              Acciones
+            </th>
 
           </tr>
 
@@ -304,7 +516,9 @@
 </div>
 
 
+<!-- ================================================= -->
 <!-- MODAL DETALLE -->
+<!-- ================================================= -->
 
 <div
   id="detailModal"
@@ -322,7 +536,7 @@
   <div
     class="card"
     style="
-      max-width:1000px;
+      max-width:1100px;
       margin:20px auto;
       max-height:92vh;
       overflow:auto;
@@ -335,6 +549,7 @@
         justify-content:space-between;
         align-items:center;
         gap:15px;
+        flex-wrap:wrap;
       "
     >
 
@@ -343,14 +558,41 @@
       </h2>
 
 
-      <div>
+      <div class="actions">
 
         <button
           class="primary"
           id="printDetail"
           type="button"
         >
-          🖨️ Imprimir reporte
+          🖨️ Imprimir
+        </button>
+
+
+        <button
+          class="secondary"
+          id="pdfDetail"
+          type="button"
+        >
+          📄 PDF
+        </button>
+
+
+        <button
+          class="secondary"
+          id="excelDetail"
+          type="button"
+        >
+          📊 Excel
+        </button>
+
+
+        <button
+          class="primary"
+          id="editDetail"
+          type="button"
+        >
+          ✏️ Editar
         </button>
 
 
@@ -371,6 +613,108 @@
 
 
     <div id="detailContent"></div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- MODAL EDICIÓN -->
+<!-- ================================================= -->
+
+<div
+  id="editModal"
+  hidden
+  style="
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    z-index:10000;
+    padding:20px;
+    overflow:auto;
+  "
+>
+
+  <div
+    class="card"
+    style="
+      max-width:1100px;
+      margin:20px auto;
+      max-height:92vh;
+      overflow:auto;
+    "
+  >
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      "
+    >
+
+      <h2>
+        Editar reporte SRAM
+      </h2>
+
+      <button
+        class="secondary"
+        id="closeEdit"
+        type="button"
+      >
+        Cerrar
+      </button>
+
+    </div>
+
+
+    <hr>
+
+
+    <form id="editForm">
+
+      <div
+        id="editFields"
+        style="
+          display:grid;
+          grid-template-columns:
+            repeat(auto-fit,minmax(280px,1fr));
+          gap:15px;
+        "
+      ></div>
+
+
+      <div
+        class="actions"
+        style="margin-top:20px;"
+      >
+
+        <button
+          class="primary"
+          type="submit"
+        >
+          💾 Guardar cambios
+        </button>
+
+
+        <button
+          class="secondary"
+          id="cancelEdit"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+
+        <span
+          id="editMsg"
+          class="status"
+        ></span>
+
+      </div>
+
+    </form>
 
   </div>
 
