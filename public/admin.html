@@ -10,23 +10,16 @@
   <link rel="stylesheet" href="styles.css">
 
   <script src="supabase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Excel -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-  <!-- PDF -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@Supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
 <div class="wrap">
 
-  <!-- ================================================= -->
+  <!-- ================================================== -->
   <!-- LOGIN -->
-  <!-- ================================================= -->
+  <!-- ================================================== -->
 
   <section class="card" id="loginPanel">
 
@@ -69,16 +62,19 @@
         Iniciar sesión
       </button>
 
-      <p id="loginMsg" class="status"></p>
+      <p
+        id="loginMsg"
+        class="status"
+      ></p>
 
     </form>
 
   </section>
 
 
-  <!-- ================================================= -->
+  <!-- ================================================== -->
   <!-- PANEL ADMINISTRATIVO -->
-  <!-- ================================================= -->
+  <!-- ================================================== -->
 
   <section
     class="card"
@@ -115,6 +111,7 @@
 
       </div>
 
+
       <button
         id="logout"
         type="button"
@@ -137,60 +134,9 @@
     <hr>
 
 
-    <!-- ================================================= -->
-    <!-- INDICADORES -->
-    <!-- ================================================= -->
-
-    <h2>
-      Resumen de reportes
-    </h2>
-
-    <div
-      style="
-        display:grid;
-        grid-template-columns:
-          repeat(auto-fit,minmax(150px,1fr));
-        gap:12px;
-        margin-bottom:25px;
-      "
-    >
-
-      <div class="card" style="margin:0;text-align:center;">
-        <strong>Total</strong>
-        <div id="statTotal" style="font-size:28px;font-weight:bold;">0</div>
-      </div>
-
-      <div class="card" style="margin:0;text-align:center;">
-        <strong>Nuevos</strong>
-        <div id="statNuevo" style="font-size:28px;font-weight:bold;">0</div>
-      </div>
-
-      <div class="card" style="margin:0;text-align:center;">
-        <strong>En revisión</strong>
-        <div id="statRevision" style="font-size:28px;font-weight:bold;">0</div>
-      </div>
-
-      <div class="card" style="margin:0;text-align:center;">
-        <strong>En evaluación</strong>
-        <div id="statEvaluacion" style="font-size:28px;font-weight:bold;">0</div>
-      </div>
-
-      <div class="card" style="margin:0;text-align:center;">
-        <strong>Cerrados</strong>
-        <div id="statCerrado" style="font-size:28px;font-weight:bold;">0</div>
-      </div>
-
-      <div class="card" style="margin:0;text-align:center;">
-        <strong>Graves</strong>
-        <div id="statGraves" style="font-size:28px;font-weight:bold;">0</div>
-      </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- FILTROS -->
-    <!-- ================================================= -->
+    <!-- ================================================== -->
+    <!-- BUSCAR -->
+    <!-- ================================================== -->
 
     <h2>
       Buscar reportes
@@ -243,74 +189,6 @@
 
       <div>
 
-        <label for="statusFilter">
-          Estatus
-        </label>
-
-        <select id="statusFilter">
-
-          <option value="">
-            Todos
-          </option>
-
-          <option value="Nuevo">
-            Nuevo
-          </option>
-
-          <option value="En revisión">
-            En revisión
-          </option>
-
-          <option value="En evaluación">
-            En evaluación
-          </option>
-
-          <option value="Cerrado">
-            Cerrado
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div>
-
-        <label for="causalityFilter">
-          Causalidad
-        </label>
-
-        <select id="causalityFilter">
-
-          <option value="">
-            Todas
-          </option>
-
-          <option>Definida</option>
-          <option>Probable</option>
-          <option>Posible</option>
-          <option>Dudosa</option>
-          <option>No evaluable</option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div
-      style="
-        display:grid;
-        grid-template-columns:
-          repeat(2,minmax(150px,1fr));
-        gap:12px;
-        margin-bottom:15px;
-      "
-    >
-
-      <div>
-
         <label for="dateFrom">
           Fecha desde
         </label>
@@ -339,9 +217,7 @@
     </div>
 
 
-    <!-- ================================================= -->
     <!-- BOTONES -->
-    <!-- ================================================= -->
 
     <div class="actions">
 
@@ -381,33 +257,6 @@
       </button>
 
 
-      <button
-        class="secondary"
-        id="exportExcel"
-        type="button"
-      >
-        📊 Excel
-      </button>
-
-
-      <button
-        class="secondary"
-        id="exportSelectedExcel"
-        type="button"
-      >
-        📊 Excel seleccionados
-      </button>
-
-
-      <button
-        class="secondary"
-        id="exportSelectedPdf"
-        type="button"
-      >
-        📄 PDF seleccionados
-      </button>
-
-
       <span
         id="msg"
         class="status"
@@ -416,41 +265,9 @@
     </div>
 
 
-    <!-- ================================================= -->
-    <!-- SELECCIÓN MÚLTIPLE -->
-    <!-- ================================================= -->
-
-    <div
-      style="
-        margin:15px 0;
-        padding:12px;
-        background:#f4f6f7;
-        border-radius:8px;
-      "
-    >
-
-      <label>
-        <input
-          type="checkbox"
-          id="selectAll"
-        >
-
-        Seleccionar todos los reportes visibles
-      </label>
-
-      <span
-        id="selectedCount"
-        style="margin-left:15px;font-weight:bold;"
-      >
-        0 seleccionados
-      </span>
-
-    </div>
-
-
-    <!-- ================================================= -->
+    <!-- ================================================== -->
     <!-- TABLA -->
-    <!-- ================================================= -->
+    <!-- ================================================== -->
 
     <div style="overflow:auto">
 
@@ -460,45 +277,21 @@
 
           <tr>
 
-            <th>
-              Seleccionar
-            </th>
+            <th>Folio</th>
 
-            <th>
-              Folio
-            </th>
+            <th>Fecha</th>
 
-            <th>
-              Fecha
-            </th>
+            <th>Unidad</th>
 
-            <th>
-              Unidad
-            </th>
+            <th>Iniciales</th>
 
-            <th>
-              Iniciales
-            </th>
+            <th>Medicamento</th>
 
-            <th>
-              Medicamento
-            </th>
+            <th>SRAM</th>
 
-            <th>
-              SRAM
-            </th>
+            <th>Gravedad</th>
 
-            <th>
-              Gravedad
-            </th>
-
-            <th>
-              Estatus
-            </th>
-
-            <th>
-              Acciones
-            </th>
+            <th>Acciones</th>
 
           </tr>
 
@@ -516,9 +309,9 @@
 </div>
 
 
-<!-- ================================================= -->
+<!-- ====================================================== -->
 <!-- MODAL DETALLE -->
-<!-- ================================================= -->
+<!-- ====================================================== -->
 
 <div
   id="detailModal"
@@ -543,6 +336,8 @@
     "
   >
 
+    <!-- CABECERA DEL DETALLE -->
+
     <div
       style="
         display:flex;
@@ -553,39 +348,27 @@
       "
     >
 
-      <h2>
-        Detalle del reporte SRAM
-      </h2>
+      <div>
+
+        <h2>
+          Detalle del reporte SRAM
+        </h2>
+
+        <p
+          class="note"
+          id="detailFolio"
+        ></p>
+
+      </div>
 
 
-      <div class="actions">
-
-        <button
-          class="primary"
-          id="printDetail"
-          type="button"
-        >
-          🖨️ Imprimir
-        </button>
-
-
-        <button
-          class="secondary"
-          id="pdfDetail"
-          type="button"
-        >
-          📄 PDF
-        </button>
-
-
-        <button
-          class="secondary"
-          id="excelDetail"
-          type="button"
-        >
-          📊 Excel
-        </button>
-
+      <div
+        style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        "
+      >
 
         <button
           class="primary"
@@ -593,6 +376,15 @@
           type="button"
         >
           ✏️ Editar
+        </button>
+
+
+        <button
+          class="primary"
+          id="printDetail"
+          type="button"
+        >
+          🖨️ Imprimir
         </button>
 
 
@@ -612,87 +404,254 @@
     <hr>
 
 
+    <!-- INFORMACIÓN DEL REPORTE -->
+
     <div id="detailContent"></div>
 
-  </div>
 
-</div>
-
-
-<!-- ================================================= -->
-<!-- MODAL EDICIÓN -->
-<!-- ================================================= -->
-
-<div
-  id="editModal"
-  hidden
-  style="
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.65);
-    z-index:10000;
-    padding:20px;
-    overflow:auto;
-  "
->
-
-  <div
-    class="card"
-    style="
-      max-width:1100px;
-      margin:20px auto;
-      max-height:92vh;
-      overflow:auto;
-    "
-  >
+    <!-- ================================================== -->
+    <!-- FORMULARIO DE EDICIÓN ADMINISTRATIVA -->
+    <!-- ================================================== -->
 
     <div
+      id="editSection"
+      hidden
       style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
+        margin-top:30px;
+        padding:20px;
+        border:2px solid #176b4d;
+        border-radius:10px;
+        background:#f8faf9;
       "
     >
 
       <h2>
-        Editar reporte SRAM
+        ✏️ Información administrativa
       </h2>
 
-      <button
-        class="secondary"
-        id="closeEdit"
-        type="button"
-      >
-        Cerrar
-      </button>
+      <p class="note">
 
-    </div>
+        Los siguientes campos son de uso exclusivo del
+        <strong>CDFV / UHFV en UMAE</strong>.
+
+      </p>
 
 
-    <hr>
+      <!-- ============================================== -->
+      <!-- NOTIFICACIONES -->
+      <!-- ============================================== -->
 
-
-    <form id="editForm">
+      <h3>
+        1. Información de la notificación
+      </h3>
 
       <div
-        id="editFields"
         style="
           display:grid;
           grid-template-columns:
-            repeat(auto-fit,minmax(280px,1fr));
+            repeat(auto-fit,minmax(220px,1fr));
           gap:15px;
         "
-      ></div>
+      >
 
+        <div>
+
+          <label for="editNotifCdfv">
+            No. de notificación CDFV / UMAE
+          </label>
+
+          <input
+            id="editNotifCdfv"
+            type="text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="editNotifCicfv">
+            No. de notificación CICFV
+          </label>
+
+          <input
+            id="editNotifCicfv"
+            type="text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="editNotifCnfv">
+            No. de notificación CNFV
+          </label>
+
+          <input
+            id="editNotifCnfv"
+            type="text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="editFechaCaptura">
+            Fecha de captura
+          </label>
+
+          <input
+            id="editFechaCaptura"
+            type="date"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- PRE-EVALUACIÓN DE CAUSALIDAD -->
+      <!-- ============================================== -->
+
+      <div
+        style="
+          margin-top:30px;
+          padding-top:20px;
+          border-top:1px solid #ccc;
+        "
+      >
+
+        <h3>
+          9. PRE-EVALUACIÓN DE CAUSALIDAD
+        </h3>
+
+        <p
+          class="note"
+          style="font-weight:bold;"
+        >
+          ESTA SECCIÓN LA REALIZA EL CDFV O LA UHFV EN UMAE.
+        </p>
+
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:
+              repeat(auto-fit,minmax(250px,1fr));
+            gap:15px;
+          "
+        >
+
+          <div>
+
+            <label for="editCausalidad">
+              Evaluación de causalidad
+            </label>
+
+            <select id="editCausalidad">
+
+              <option value="">
+                Seleccione
+              </option>
+
+              <option>
+                Definida
+              </option>
+
+              <option>
+                Probable
+              </option>
+
+              <option>
+                Posible
+              </option>
+
+              <option>
+                Dudosa
+              </option>
+
+              <option>
+                No evaluable
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div>
+
+            <label for="editNaranjo">
+              Resultado del algoritmo de Naranjo
+            </label>
+
+            <select id="editNaranjo">
+
+              <option value="">
+                Seleccione
+              </option>
+
+              <option>
+                Definida
+              </option>
+
+              <option>
+                Probable
+              </option>
+
+              <option>
+                Posible
+              </option>
+
+              <option>
+                Dudosa
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            margin-top:15px;
+          "
+        >
+
+          <label for="editComentariosCausalidad">
+            Comentarios de causalidad
+          </label>
+
+          <textarea
+            id="editComentariosCausalidad"
+            rows="5"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- BOTONES DE EDICIÓN -->
+      <!-- ============================================== -->
 
       <div
         class="actions"
-        style="margin-top:20px;"
+        style="
+          margin-top:20px;
+        "
       >
 
         <button
           class="primary"
-          type="submit"
+          id="saveEdit"
+          type="button"
         >
           💾 Guardar cambios
         </button>
@@ -714,7 +673,7 @@
 
       </div>
 
-    </form>
+    </div>
 
   </div>
 
