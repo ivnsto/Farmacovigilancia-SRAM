@@ -936,6 +936,7 @@ function editReport(index) {
 
 // =====================================================
 // CONSTRUIR FORMULARIO DE EDICIÓN
+// SOLO CAMPOS ADMINISTRATIVOS + PRE-EVALUACIÓN NARANJO
 // =====================================================
 
 function buildEditForm() {
@@ -944,27 +945,304 @@ function buildEditForm() {
 
   if (!currentReport) return;
 
-  const fields =
-    Object.entries(currentReport);
 
-  fields.forEach(
-    ([key, value]) => {
+  // ===================================================
+  // CAMPOS DEL APARTADO 1 QUE PUEDE EDITAR EL ADMIN
+  // ===================================================
 
-      if (
-        key === "created_at" ||
-        key === "updated_at"
-      ) {
-        return;
-      }
+  const adminFields = [
+    {
+      key: "notif_cdfv",
+      label: "No. de Notificación CDFV / UMAE",
+      type: "text"
+    },
+
+    {
+      key: "notif_cicfv",
+      label: "No. de Notificación CICFV",
+      type: "text"
+    },
+
+    {
+      key: "notif_cnfv",
+      label: "No. de Notificación CNFV",
+      type: "text"
+    },
+
+    {
+      key: "fecha_captura",
+      label: "Fecha de captura",
+      type: "date"
+    }
+  ];
+
+
+  // ===================================================
+  // CREAR CAMPOS ADMINISTRATIVOS
+  // ===================================================
+
+  adminFields.forEach(field => {
+
+    const wrapper =
+      document.createElement("div");
+
+    const label =
+      document.createElement("label");
+
+    label.textContent =
+      field.label;
+
+    label.style.fontWeight =
+      "bold";
+
+    label.style.display =
+      "block";
+
+    label.style.marginBottom =
+      "5px";
+
+
+    const input =
+      document.createElement("input");
+
+    input.dataset.field =
+      field.key;
+
+    input.type =
+      field.type;
+
+    input.style.width =
+      "100%";
+
+    input.style.boxSizing =
+      "border-box";
+
+
+    if (field.type === "date") {
+
+      input.value =
+        currentReport[field.key]
+          ? String(currentReport[field.key]).slice(0, 10)
+          : "";
+
+    } else {
+
+      input.value =
+        currentReport[field.key] ?? "";
+
+    }
+
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+
+    editFields.appendChild(wrapper);
+
+  });
+
+
+  // ===================================================
+  // TÍTULO APARTADO 9
+  // ===================================================
+
+  const sectionTitle =
+    document.createElement("div");
+
+  sectionTitle.style.gridColumn =
+    "1 / -1";
+
+  sectionTitle.style.marginTop =
+    "20px";
+
+  sectionTitle.style.padding =
+    "12px";
+
+  sectionTitle.style.background =
+    "#d9d9d9";
+
+  sectionTitle.style.border =
+    "2px solid #222";
+
+  sectionTitle.innerHTML = `
+    <strong>
+      9. PRE-EVALUACIÓN DE CAUSALIDAD
+    </strong>
+    <br>
+    <small>
+      Esta sección la realiza el CDFV o la UHFV en UMAE.
+    </small>
+  `;
+
+  editFields.appendChild(sectionTitle);
+
+
+  // ===================================================
+  // PREGUNTAS DEL ALGORITMO DE NARANJO
+  // ===================================================
+
+  const naranjoQuestions = [
+
+    {
+      number: 1,
+      text:
+        "¿Existen informes previos concluyentes acerca de esta reacción?"
+    },
+
+    {
+      number: 2,
+      text:
+        "¿La reacción adversa apareció después de administrar el medicamento sospechoso?"
+    },
+
+    {
+      number: 3,
+      text:
+        "¿La reacción adversa mejoró al suspender o administrar un antagonista específico?"
+    },
+
+    {
+      number: 4,
+      text:
+        "¿La reacción adversa reapareció al readministrar el medicamento?"
+    },
+
+    {
+      number: 5,
+      text:
+        "¿Existen causas alternativas que pudieran por sí mismas haber causado la reacción?"
+    },
+
+    {
+      number: 6,
+      text:
+        "¿La reacción reapareció al administrar placebo?"
+    },
+
+    {
+      number: 7,
+      text:
+        "¿Se detectó el medicamento en líquidos biológicos en concentraciones tóxicas?"
+    },
+
+    {
+      number: 8,
+      text:
+        "¿La reacción fue más grave al aumentar la dosis o menos grave al disminuirla?"
+    },
+
+    {
+      number: 9,
+      text:
+        "¿El paciente tuvo una reacción similar al mismo medicamento o a medicamentos similares en alguna exposición anterior?"
+    },
+
+    {
+      number: 10,
+      text:
+        "¿La reacción adversa se confirmó mediante alguna evidencia objetiva?"
+    }
+
+  ];
+
+
+  // ===================================================
+  // VALORES DEL ALGORITMO
+  // ===================================================
+
+  const naranjoOptions = [
+
+    {
+      text: "Sí (+1)",
+      value: "1",
+      score: 1
+    },
+
+    {
+      text: "Sí (+2)",
+      value: "2",
+      score: 2
+    },
+
+    {
+      text: "No (-1)",
+      value: "-1",
+      score: -1
+    },
+
+    {
+      text: "No (0)",
+      value: "0",
+      score: 0
+    },
+
+    {
+      text: "No se sabe / No aplica (0)",
+      value: "0",
+      score: 0
+    }
+
+  ];
+
+
+  // ===================================================
+  // RECUPERAR NARANJO EXISTENTE
+  // ===================================================
+
+  let naranjoData = null;
+
+  try {
+
+    if (currentReport.naranjo) {
+
+      naranjoData =
+        JSON.parse(
+          currentReport.naranjo
+        );
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "El campo naranjo existente no está en formato JSON.",
+      error
+    );
+
+  }
+
+
+  const answers =
+    naranjoData?.answers || [];
+
+
+  // ===================================================
+  // CREAR LAS 10 PREGUNTAS
+  // ===================================================
+
+  naranjoQuestions.forEach(
+    question => {
 
       const wrapper =
         document.createElement("div");
+
+      wrapper.style.gridColumn =
+        "1 / -1";
+
+      wrapper.style.padding =
+        "10px";
+
+      wrapper.style.border =
+        "1px solid #ccc";
+
+      wrapper.style.borderRadius =
+        "6px";
+
 
       const label =
         document.createElement("label");
 
       label.textContent =
-        humanizeField(key);
+        `${question.number}. ${question.text}`;
 
       label.style.fontWeight =
         "bold";
@@ -973,147 +1251,389 @@ function buildEditForm() {
         "block";
 
       label.style.marginBottom =
-        "5px";
+        "6px";
 
-      let input;
 
-      if (key === "estatus") {
+      const select =
+        document.createElement("select");
 
-        input =
-          document.createElement("select");
+      select.dataset.naranjo =
+        String(question.number);
 
-        [
-          "Nuevo",
-          "En revisión",
-          "En evaluación",
-          "Cerrado"
-        ].forEach(optionValue => {
+      select.style.width =
+        "100%";
 
-          const option =
-            document.createElement("option");
+      select.style.padding =
+        "8px";
 
-          option.value =
-            optionValue;
 
-          option.textContent =
-            optionValue;
+      const empty =
+        document.createElement("option");
 
-          input.appendChild(option);
+      empty.value =
+        "";
 
-        });
+      empty.textContent =
+        "Seleccione una opción";
 
-        input.value =
-          value || "Nuevo";
+      select.appendChild(empty);
+
+
+      // Opciones específicas según la pregunta
+      // para respetar la puntuación del algoritmo de Naranjo
+
+      let options = [];
+
+
+      if (
+        question.number === 2 ||
+        question.number === 4
+      ) {
+
+        options = [
+          {
+            text: "Sí (+2)",
+            value: "2",
+            score: 2
+          },
+          {
+            text: "No (-1)",
+            value: "-1",
+            score: -1
+          },
+          {
+            text: "No se sabe (0)",
+            value: "0",
+            score: 0
+          }
+        ];
 
       }
 
       else if (
-        key === "confirmacion" ||
-        key === "embarazada" ||
-        key === "lactando" ||
-        key === "reexpuesto"
+        question.number === 5
       ) {
 
-        input =
-          document.createElement("input");
-
-        input.type =
-          "text";
-
-        input.value =
-          formatValue(value);
+        options = [
+          {
+            text: "No (+2)",
+            value: "2",
+            score: 2
+          },
+          {
+            text: "Sí (-1)",
+            value: "-1",
+            score: -1
+          },
+          {
+            text: "No se sabe (0)",
+            value: "0",
+            score: 0
+          }
+        ];
 
       }
 
       else if (
-        Array.isArray(value)
+        question.number === 6
       ) {
 
-        input =
-          document.createElement("textarea");
-
-        input.value =
-          value.join(" | ");
-
-      }
-
-      else if (
-        key.includes("fecha") ||
-        key === "fum" ||
-        key === "med_inicio" ||
-        key === "med_termino" ||
-        key === "caducidad"
-      ) {
-
-        input =
-          document.createElement("input");
-
-        input.type =
-          "date";
-
-        input.value =
-          value
-            ? String(value).slice(0,10)
-            : "";
-
-      }
-
-      else if (
-        key.includes("comentarios") ||
-        key.includes("observaciones") ||
-        key.includes("historia") ||
-        key.includes("evolucion") ||
-        key.includes("intervencion") ||
-        key.includes("consecuencia") ||
-        key === "sram_notificada" ||
-        key === "estudios" ||
-        key === "concomitantes" ||
-        key === "informacion_adicional" ||
-        key === "descripcion_documentacion"
-      ) {
-
-        input =
-          document.createElement("textarea");
-
-        input.rows = 4;
-
-        input.value =
-          value ?? "";
+        options = [
+          {
+            text: "No (+1)",
+            value: "1",
+            score: 1
+          },
+          {
+            text: "Sí (0)",
+            value: "0",
+            score: 0
+          },
+          {
+            text: "No se sabe (0)",
+            value: "0",
+            score: 0
+          }
+        ];
 
       }
 
       else {
 
-        input =
-          document.createElement("input");
-
-        input.type =
-          "text";
-
-        input.value =
-          value ?? "";
+        options = [
+          {
+            text: "Sí (+1)",
+            value: "1",
+            score: 1
+          },
+          {
+            text: "No (0)",
+            value: "0",
+            score: 0
+          },
+          {
+            text: "No se sabe (0)",
+            value: "0",
+            score: 0
+          }
+        ];
 
       }
 
-      input.dataset.field =
-        key;
 
-      input.style.width =
-        "100%";
+      options.forEach(
+        optionData => {
+
+          const option =
+            document.createElement("option");
+
+          option.value =
+            optionData.value;
+
+          option.textContent =
+            optionData.text;
+
+          option.dataset.score =
+            optionData.score;
+
+          select.appendChild(option);
+
+        }
+      );
+
+
+      // Recuperar respuesta guardada
+
+      const saved =
+        answers.find(
+          item =>
+            Number(item.question) ===
+            question.number
+        );
+
+
+      if (saved) {
+
+        select.value =
+          String(saved.value);
+
+      }
+
 
       wrapper.appendChild(label);
-      wrapper.appendChild(input);
+      wrapper.appendChild(select);
 
       editFields.appendChild(wrapper);
 
     }
   );
 
-}
 
+  // ===================================================
+  // TOTAL
+  // ===================================================
+
+  const totalWrapper =
+    document.createElement("div");
+
+  totalWrapper.style.padding =
+    "12px";
+
+  totalWrapper.style.background =
+    "#f1f5f3";
+
+  totalWrapper.style.border =
+    "2px solid #176b4d";
+
+
+  const totalLabel =
+    document.createElement("strong");
+
+  totalLabel.textContent =
+    "TOTAL: ";
+
+
+  const totalInput =
+    document.createElement("input");
+
+  totalInput.type =
+    "text";
+
+  totalInput.id =
+    "naranjoTotal";
+
+  totalInput.readOnly =
+    true;
+
+  totalInput.style.width =
+    "100px";
+
+  totalInput.style.fontWeight =
+    "bold";
+
+  totalInput.style.marginLeft =
+    "10px";
+
+
+  totalInput.value =
+    naranjoData?.total ??
+    "0";
+
+
+  totalWrapper.appendChild(totalLabel);
+  totalWrapper.appendChild(totalInput);
+
+  editFields.appendChild(totalWrapper);
+
+
+  // ===================================================
+  // RESULTADO
+  // ===================================================
+
+  const resultWrapper =
+    document.createElement("div");
+
+  resultWrapper.style.padding =
+    "12px";
+
+
+  const resultLabel =
+    document.createElement("label");
+
+  resultLabel.textContent =
+    "RESULTADO";
+
+  resultLabel.style.fontWeight =
+    "bold";
+
+  resultLabel.style.display =
+    "block";
+
+  resultLabel.style.marginBottom =
+    "5px";
+
+
+  const resultSelect =
+    document.createElement("select");
+
+  resultSelect.id =
+    "naranjoResult";
+
+  resultSelect.dataset.field =
+    "causalidad";
+
+  resultSelect.style.width =
+    "100%";
+
+
+  const results = [
+    "DEFINIDA",
+    "PROBABLE",
+    "POSIBLE",
+    "DUDOSA",
+    "NO EVALUABLE"
+  ];
+
+
+  results.forEach(result => {
+
+    const option =
+      document.createElement("option");
+
+    option.value =
+      result;
+
+    option.textContent =
+      result;
+
+    resultSelect.appendChild(option);
+
+  });
+
+
+  const existingResult =
+    currentReport.causalidad ||
+    naranjoData?.result ||
+    "DUDOSA";
+
+
+  resultSelect.value =
+    String(existingResult).toUpperCase();
+
+
+  resultWrapper.appendChild(resultLabel);
+  resultWrapper.appendChild(resultSelect);
+
+  editFields.appendChild(resultWrapper);
+
+
+  // ===================================================
+  // CALCULAR TOTAL AUTOMÁTICAMENTE
+  // ===================================================
+
+  function calculateNaranjoTotal() {
+
+    let total = 0;
+
+
+    editFields
+      .querySelectorAll(
+        "[data-naranjo]"
+      )
+      .forEach(select => {
+
+        const selected =
+          select.options[
+            select.selectedIndex
+          ];
+
+        if (!selected) return;
+
+        const score =
+          Number(
+            selected.dataset.score
+          );
+
+        if (!Number.isNaN(score)) {
+
+          total += score;
+
+        }
+
+      });
+
+
+    totalInput.value =
+      total;
+
+  }
+
+
+  editFields
+    .querySelectorAll(
+      "[data-naranjo]"
+    )
+    .forEach(select => {
+
+      select.addEventListener(
+        "change",
+        calculateNaranjoTotal
+      );
+
+    });
+
+
+  calculateNaranjoTotal();
+
+}
 
 // =====================================================
 // GUARDAR EDICIÓN
+// =====================================================
+
+// =====================================================
+// GUARDAR EDICIÓN
+// SOLO CAMPOS ADMINISTRATIVOS + NARANJO
 // =====================================================
 
 editForm.addEventListener(
@@ -1124,51 +1644,166 @@ editForm.addEventListener(
 
     if (!currentReport) return;
 
+
     editMsg.textContent =
       "Guardando cambios...";
 
+
     const updates = {};
 
+
+    // =================================================
+    // CAMPOS QUE EL ADMINISTRADOR PUEDE MODIFICAR
+    // =================================================
+
+    const allowedFields = [
+      "notif_cdfv",
+      "notif_cicfv",
+      "notif_cnfv",
+      "fecha_captura"
+    ];
+
+
+    allowedFields.forEach(key => {
+
+      const input =
+        editFields.querySelector(
+          `[data-field="${key}"]`
+        );
+
+      if (!input) return;
+
+      let value =
+        input.value;
+
+      if (
+        input.type === "date" &&
+        value === ""
+      ) {
+
+        value = null;
+
+      }
+
+
+      const oldValue =
+        currentReport[key]
+          ? String(currentReport[key]).slice(0, 10)
+          : null;
+
+
+      if (
+        value !== oldValue
+      ) {
+
+        updates[key] =
+          value;
+
+      }
+
+    });
+
+
+    // =================================================
+    // RECOPILAR LAS 10 RESPUESTAS DE NARANJO
+    // =================================================
+
+    const naranjoAnswers = [];
+
+
     editFields
-      .querySelectorAll("[data-field]")
-      .forEach(input => {
+      .querySelectorAll(
+        "[data-naranjo]"
+      )
+      .forEach(select => {
 
-        const key =
-          input.dataset.field;
+        const question =
+          Number(
+            select.dataset.naranjo
+          );
 
-        let value =
-          input.value;
+        const selected =
+          select.options[
+            select.selectedIndex
+          ];
+
 
         if (
-          input.type === "date" &&
-          value === ""
+          !selected ||
+          select.value === ""
         ) {
-          value = null;
+
+          return;
+
         }
 
-        if (
-          currentReport[key] !== value &&
-          key !== "folio"
-        ) {
-          updates[key] = value;
-        }
+
+        naranjoAnswers.push({
+
+          question:
+            question,
+
+          value:
+            Number(select.value),
+
+          score:
+            Number(
+              selected.dataset.score
+            )
+
+        });
 
       });
 
 
+    const naranjoTotal =
+      Number(
+        document.getElementById(
+          "naranjoTotal"
+        ).value || 0
+      );
+
+
+    const naranjoResult =
+      document.getElementById(
+        "naranjoResult"
+      ).value;
+
+
+    // =================================================
+    // GUARDAR NARANJO COMO JSON
+    // =================================================
+
+    const naranjoObject = {
+
+      answers:
+        naranjoAnswers,
+
+      total:
+        naranjoTotal,
+
+      result:
+        naranjoResult
+
+    };
+
+
+    updates.naranjo =
+      JSON.stringify(
+        naranjoObject
+      );
+
+
+    updates.causalidad =
+      naranjoResult;
+
+
+    // =================================================
+    // ACTUALIZACIÓN
+    // =================================================
+
     updates.updated_at =
       new Date().toISOString();
-
-
-    if (
-      updates.estatus === "Cerrado" &&
-      !updates.fecha_cierre
-    ) {
-
-      updates.fecha_cierre =
-        new Date().toISOString().slice(0,10);
-
-    }
 
 
     const {
@@ -1203,30 +1838,45 @@ editForm.addEventListener(
     }
 
 
+    // =================================================
+    // ACTUALIZAR INFORMACIÓN LOCAL
+    // =================================================
+
     const updated =
       data;
 
 
     const position =
       reports.findIndex(
-        r => r.folio === updated.folio
+        r =>
+          r.folio ===
+          updated.folio
       );
 
+
     if (position >= 0) {
+
       reports[position] =
         updated;
+
     }
 
 
     const filteredPosition =
       filteredReports.findIndex(
-        r => r.folio === updated.folio
+        r =>
+          r.folio ===
+          updated.folio
       );
 
+
     if (filteredPosition >= 0) {
+
       filteredReports[
         filteredPosition
-      ] = updated;
+      ] =
+        updated;
+
     }
 
 
@@ -1237,24 +1887,32 @@ editForm.addEventListener(
     renderStats();
     renderReports();
 
+
     editMsg.textContent =
       "Cambios guardados correctamente.";
+
 
     alert(
       "Los cambios se guardaron correctamente."
     );
 
-    editModal.hidden = true;
 
-    openReport(
+    editModal.hidden =
+      true;
+
+
+    if (
       filteredPosition >= 0
-        ? filteredPosition
-        : 0
-    );
+    ) {
+
+      openReport(
+        filteredPosition
+      );
+
+    }
 
   }
 );
-
 
 // =====================================================
 // CERRAR EDICIÓN
