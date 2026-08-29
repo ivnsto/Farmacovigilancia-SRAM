@@ -8,41 +8,53 @@
   <title>Administración SRAM</title>
 
   <link rel="stylesheet" href="styles.css">
-@@ -16,6 +18,7 @@
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@Supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
 <div class="wrap">
 
+  <!-- ================================================== -->
   <!-- LOGIN -->
+  <!-- ================================================== -->
 
   <section class="card" id="loginPanel">
 
     <h1>Administración SRAM</h1>
-@@ -26,7 +29,9 @@ <h1>Administración SRAM</h1>
+
+    <p class="note">
+      Acceso exclusivo para personal autorizado.
+    </p>
 
     <form id="loginForm">
 
-      <label for="email">Correo electrónico</label>
       <label for="email">
         Correo electrónico
       </label>
 
       <input
         type="email"
-@@ -36,7 +41,9 @@ <h1>Administración SRAM</h1>
+        id="email"
+        required
+        autocomplete="username"
         placeholder="Correo electrónico"
       >
 
-      <label for="password">Contraseña</label>
       <label for="password">
         Contraseña
       </label>
 
       <input
         type="password"
-@@ -46,74 +53,246 @@ <h1>Administración SRAM</h1>
+        id="password"
+        required
+        autocomplete="current-password"
         placeholder="Contraseña"
       >
 
-      <button class="primary" type="submit">
       <button
         class="primary"
         type="submit"
@@ -50,7 +62,6 @@
         Iniciar sesión
       </button>
 
-      <p id="loginMsg" class="status"></p>
       <p
         id="loginMsg"
         class="status"
@@ -61,9 +72,9 @@
   </section>
 
 
+  <!-- ================================================== -->
   <!-- PANEL ADMINISTRATIVO -->
-  <section class="card" id="adminPanel" hidden>
-  <!-- PANEL -->
+  <!-- ================================================== -->
 
   <section
     class="card"
@@ -93,24 +104,13 @@
           Administración de reportes de sospecha de reacciones adversas a medicamentos.
         </p>
 
-    <header>
         <p>
           Usuario:
           <strong id="userEmail"></strong>
         </p>
 
-      <h1>Panel de reportes SRAM</h1>
       </div>
 
-      <p class="note">
-        Reportes de sospecha de reacciones adversas a medicamentos.
-      </p>
-
-      <p>
-        Usuario:
-        <strong id="userEmail"></strong>
-      </p>
-      <!-- CERRAR SESIÓN -->
 
       <button
         id="logout"
@@ -134,12 +134,13 @@
     <hr>
 
 
-    <!-- FILTROS -->
+    <!-- ================================================== -->
+    <!-- BUSCAR -->
+    <!-- ================================================== -->
 
     <h2>
       Buscar reportes
     </h2>
-
 
     <div
       style="
@@ -220,8 +221,6 @@
 
     <div class="actions">
 
-      <button class="primary" id="load">
-        Cargar reportes
       <button
         class="primary"
         id="load"
@@ -230,8 +229,6 @@
         🔄 Cargar reportes
       </button>
 
-      <button class="secondary" id="csv">
-        Exportar CSV
 
       <button
         class="primary"
@@ -241,8 +238,6 @@
         🔎 Buscar
       </button>
 
-      <button class="secondary" id="logout">
-        Cerrar sesión
 
       <button
         class="secondary"
@@ -252,7 +247,6 @@
         Limpiar filtros
       </button>
 
-      <span id="msg" class="status"></span>
 
       <button
         class="secondary"
@@ -271,7 +265,9 @@
     </div>
 
 
+    <!-- ================================================== -->
     <!-- TABLA -->
+    <!-- ================================================== -->
 
     <div style="overflow:auto">
 
@@ -294,7 +290,6 @@
             <th>SRAM</th>
 
             <th>Gravedad</th>
-            <th>Reporte</th>
 
             <th>Acciones</th>
 
@@ -306,12 +301,17 @@
         <tbody id="rows"></tbody>
 
       </table>
-@@ -125,15 +304,15 @@ <h1>Panel de reportes SRAM</h1>
+
+    </div>
+
+  </section>
+
 </div>
 
 
-<!-- VENTANA DE DETALLE DEL REPORTE -->
+<!-- ====================================================== -->
 <!-- MODAL DETALLE -->
+<!-- ====================================================== -->
 
 <div
   id="detailModal"
@@ -319,47 +319,72 @@
   style="
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.55);
     background:rgba(0,0,0,.60);
     z-index:9999;
     padding:20px;
     overflow:auto;
-@@ -144,8 +323,8 @@ <h1>Panel de reportes SRAM</h1>
+  "
+>
+
+  <div
     class="card"
     style="
-      max-width:1000px;
-      margin:30px auto;
-      max-height:90vh;
+      max-width:1100px;
       margin:20px auto;
       max-height:92vh;
       overflow:auto;
     "
   >
-@@ -159,20 +338,38 @@ <h1>Panel de reportes SRAM</h1>
+
+    <!-- CABECERA DEL DETALLE -->
+
+    <div
+      style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:15px;
+        flex-wrap:wrap;
       "
     >
 
-      <h2>Detalle del reporte SRAM</h2>
-      <h2>
-        Detalle del reporte SRAM
-      </h2>
-
-      <button
-        class="secondary"
-        id="closeDetail"
-        type="button"
-      >
-        Cerrar
-      </button>
-
       <div>
+
+        <h2>
+          Detalle del reporte SRAM
+        </h2>
+
+        <p
+          class="note"
+          id="detailFolio"
+        ></p>
+
+      </div>
+
+
+      <div
+        style="
+          display:flex;
+          gap:8px;
+          flex-wrap:wrap;
+        "
+      >
+
+        <button
+          class="primary"
+          id="editDetail"
+          type="button"
+        >
+          ✏️ Editar
+        </button>
+
 
         <button
           class="primary"
           id="printDetail"
           type="button"
         >
-          🖨️ Imprimir reporte
+          🖨️ Imprimir
         </button>
 
 
@@ -379,6 +404,283 @@
     <hr>
 
 
+    <!-- INFORMACIÓN DEL REPORTE -->
+
     <div id="detailContent"></div>
 
+
+    <!-- ================================================== -->
+    <!-- FORMULARIO DE EDICIÓN ADMINISTRATIVA -->
+    <!-- ================================================== -->
+
+    <div
+      id="editSection"
+      hidden
+      style="
+        margin-top:30px;
+        padding:20px;
+        border:2px solid #176b4d;
+        border-radius:10px;
+        background:#f8faf9;
+      "
+    >
+
+      <h2>
+        ✏️ Información administrativa
+      </h2>
+
+      <p class="note">
+
+        Los siguientes campos son de uso exclusivo del
+        <strong>CDFV / UHFV en UMAE</strong>.
+
+      </p>
+
+
+      <!-- ============================================== -->
+      <!-- NOTIFICACIONES -->
+      <!-- ============================================== -->
+
+      <h3>
+        1. Información de la notificación
+      </h3>
+
+      <div
+        style="
+          display:grid;
+          grid-template-columns:
+            repeat(auto-fit,minmax(220px,1fr));
+          gap:15px;
+        "
+      >
+
+        <div>
+
+          <label for="editNotifCdfv">
+            No. de notificación CDFV / UMAE
+          </label>
+
+          <input
+            id="editNotifCdfv"
+            type="text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="editNotifCicfv">
+            No. de notificación CICFV
+          </label>
+
+          <input
+            id="editNotifCicfv"
+            type="text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="editNotifCnfv">
+            No. de notificación CNFV
+          </label>
+
+          <input
+            id="editNotifCnfv"
+            type="text"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="editFechaCaptura">
+            Fecha de captura
+          </label>
+
+          <input
+            id="editFechaCaptura"
+            type="date"
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- PRE-EVALUACIÓN DE CAUSALIDAD -->
+      <!-- ============================================== -->
+
+      <div
+        style="
+          margin-top:30px;
+          padding-top:20px;
+          border-top:1px solid #ccc;
+        "
+      >
+
+        <h3>
+          9. PRE-EVALUACIÓN DE CAUSALIDAD
+        </h3>
+
+        <p
+          class="note"
+          style="font-weight:bold;"
+        >
+          ESTA SECCIÓN LA REALIZA EL CDFV O LA UHFV EN UMAE.
+        </p>
+
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:
+              repeat(auto-fit,minmax(250px,1fr));
+            gap:15px;
+          "
+        >
+
+          <div>
+
+            <label for="editCausalidad">
+              Evaluación de causalidad
+            </label>
+
+            <select id="editCausalidad">
+
+              <option value="">
+                Seleccione
+              </option>
+
+              <option>
+                Definida
+              </option>
+
+              <option>
+                Probable
+              </option>
+
+              <option>
+                Posible
+              </option>
+
+              <option>
+                Dudosa
+              </option>
+
+              <option>
+                No evaluable
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div>
+
+            <label for="editNaranjo">
+              Resultado del algoritmo de Naranjo
+            </label>
+
+            <select id="editNaranjo">
+
+              <option value="">
+                Seleccione
+              </option>
+
+              <option>
+                Definida
+              </option>
+
+              <option>
+                Probable
+              </option>
+
+              <option>
+                Posible
+              </option>
+
+              <option>
+                Dudosa
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            margin-top:15px;
+          "
+        >
+
+          <label for="editComentariosCausalidad">
+            Comentarios de causalidad
+          </label>
+
+          <textarea
+            id="editComentariosCausalidad"
+            rows="5"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- BOTONES DE EDICIÓN -->
+      <!-- ============================================== -->
+
+      <div
+        class="actions"
+        style="
+          margin-top:20px;
+        "
+      >
+
+        <button
+          class="primary"
+          id="saveEdit"
+          type="button"
+        >
+          💾 Guardar cambios
+        </button>
+
+
+        <button
+          class="secondary"
+          id="cancelEdit"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+
+        <span
+          id="editMsg"
+          class="status"
+        ></span>
+
+      </div>
+
+    </div>
+
   </div>
+
+</div>
+
+
+<script src="admin.js"></script>
+
+</body>
+</html>
