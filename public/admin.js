@@ -1926,7 +1926,7 @@ function closeEdit() {
 
 
 // =====================================================
-// IMPRIMIR
+// IMPRIMIR REPORTE CON ENCABEZADO INSTITUCIONAL
 // =====================================================
 
 function printReport(index) {
@@ -1935,6 +1935,11 @@ function printReport(index) {
     filteredReports[index];
 
   if (!report) return;
+
+
+  // ===================================================
+  // CONSTRUIR TABLA DEL REPORTE
+  // ===================================================
 
   const rowsHtml =
     Object.entries(report)
@@ -1958,6 +1963,10 @@ function printReport(index) {
       .join("");
 
 
+  // ===================================================
+  // ABRIR VENTANA DE IMPRESIÓN
+  // ===================================================
+
   const printWindow =
     window.open(
       "",
@@ -1977,6 +1986,10 @@ function printReport(index) {
   }
 
 
+  // ===================================================
+  // DOCUMENTO DE IMPRESIÓN
+  // ===================================================
+
   printWindow.document.write(`
 
     <!doctype html>
@@ -1991,53 +2004,263 @@ function printReport(index) {
         Reporte SRAM ${esc(report.folio)}
       </title>
 
+
       <style>
 
+        * {
+          box-sizing:border-box;
+        }
+
+
         body {
-          font-family:Arial,sans-serif;
-          margin:40px;
+
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+          margin:30px;
+
           color:#222;
+
+          background:#fff;
+
         }
 
-        header {
+
+        /* ============================================
+           ENCABEZADO INSTITUCIONAL
+           ============================================ */
+
+        .institutional-header {
+
+          display:flex;
+
+          align-items:center;
+
+          justify-content:space-between;
+
+          gap:25px;
+
+          padding:0 0 18px 0;
+
+          margin-bottom:20px;
+
           border-bottom:3px solid #176b4d;
-          padding-bottom:15px;
-          margin-bottom:25px;
+
         }
 
-        h1 {
-          color:#176b4d;
-          margin:0 0 8px;
+
+        .institutional-title {
+
+          flex:1;
+
+          text-align:center;
+
+          line-height:1.2;
+
         }
+
+
+        .imss-name {
+
+          font-size:22px;
+
+          font-weight:800;
+
+          margin-bottom:6px;
+
+        }
+
+
+        .pharmacovigilance-name {
+
+          font-size:17px;
+
+          font-weight:800;
+
+          margin-bottom:12px;
+
+        }
+
+
+        .form-title {
+
+          font-size:15px;
+
+          font-weight:700;
+
+        }
+
+
+        .imss-logo-container {
+
+          flex:0 0 100px;
+
+          display:flex;
+
+          justify-content:center;
+
+          align-items:center;
+
+        }
+
+
+        .imss-logo {
+
+          display:block;
+
+          width:90px;
+
+          height:auto;
+
+          max-height:110px;
+
+          object-fit:contain;
+
+        }
+
+
+        /* ============================================
+           DATOS DEL REPORTE
+           ============================================ */
+
+        .report-identification {
+
+          margin-bottom:20px;
+
+          padding:12px;
+
+          border:1px solid #ccc;
+
+          background:#f5f5f5;
+
+        }
+
+
+        .report-identification p {
+
+          margin:4px 0;
+
+        }
+
 
         table {
+
           width:100%;
+
           border-collapse:collapse;
+
         }
+
 
         th,
         td {
+
           border:1px solid #ccc;
+
           padding:9px;
+
           vertical-align:top;
+
         }
+
 
         th {
+
           width:32%;
+
           text-align:left;
+
           background:#f1f5f3;
+
+          font-weight:700;
+
         }
 
-        .footer {
-          margin-top:30px;
-          font-size:12px;
-          color:#666;
+
+        td {
+
+          white-space:pre-wrap;
+
+          word-break:break-word;
+
         }
+
+
+        .footer {
+
+          margin-top:30px;
+
+          padding-top:10px;
+
+          border-top:1px solid #ccc;
+
+          font-size:11px;
+
+          color:#666;
+
+          text-align:center;
+
+        }
+
 
         @media print {
 
           body {
+
             margin:15mm;
+
+          }
+
+
+          .institutional-header {
+
+            break-inside:avoid;
+
+          }
+
+
+          table {
+
+            page-break-inside:auto;
+
+          }
+
+
+          tr {
+
+            page-break-inside:avoid;
+
+            page-break-after:auto;
+
+          }
+
+        }
+
+
+        @media (max-width:700px) {
+
+          .institutional-header {
+
+            flex-direction:column;
+
+            text-align:center;
+
+          }
+
+
+          .institutional-title {
+
+            order:2;
+
+          }
+
+
+          .imss-logo-container {
+
+            order:1;
+
           }
 
         }
@@ -2046,29 +2269,90 @@ function printReport(index) {
 
     </head>
 
+
     <body>
 
-      <header>
 
-        <h1>
-          FARMACOVIGILANCIA
-        </h1>
+      <!-- ================================================= -->
+      <!-- ENCABEZADO INSTITUCIONAL -->
+      <!-- ================================================= -->
 
-        <h2>
-          UMAE Hospital de Pediatría
-          del CMN Siglo XXI
-        </h2>
+      <div class="institutional-header">
+
+
+        <div class="institutional-title">
+
+          <div class="imss-name">
+
+            INSTITUTO MEXICANO DEL SEGURO SOCIAL
+
+          </div>
+
+
+          <div class="pharmacovigilance-name">
+
+            CENTRO INSTITUCIONAL COORDINADOR DE FARMACOVIGILANCIA
+
+          </div>
+
+
+          <div class="form-title">
+
+            AVISO DE SOSPECHAS DE REACCIONES ADVERSAS DE MEDICAMENTOS
+
+          </div>
+
+        </div>
+
+
+        <div class="imss-logo-container">
+
+          <img
+            src="imss-logo.png"
+            alt="Instituto Mexicano del Seguro Social"
+            class="imss-logo"
+          >
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- IDENTIFICACIÓN DEL REPORTE -->
+      <!-- ================================================= -->
+
+      <div class="report-identification">
 
         <p>
-          Reporte de sospecha de reacción adversa a medicamentos (SRAM)
-        </p>
 
-        <p>
           <strong>Folio:</strong>
+
           ${esc(report.folio)}
+
         </p>
 
-      </header>
+
+        <p>
+
+          <strong>Fecha de notificación:</strong>
+
+          ${esc(
+            formatValue(
+              report.fecha_notificacion ||
+              report.created_at
+            )
+          )}
+
+        </p>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- INFORMACIÓN DEL REPORTE -->
+      <!-- ================================================= -->
 
       <table>
 
@@ -2080,12 +2364,18 @@ function printReport(index) {
 
       </table>
 
+
+      <!-- ================================================= -->
+      <!-- PIE -->
+      <!-- ================================================= -->
+
       <div class="footer">
 
-        Reporte generado desde el
-        sistema administrativo de Farmacovigilancia SRAM.
+        Reporte generado desde el sistema administrativo
+        de Farmacovigilancia SRAM.
 
       </div>
+
 
     </body>
 
@@ -2093,108 +2383,57 @@ function printReport(index) {
 
   `);
 
+
   printWindow.document.close();
 
-  printWindow.focus();
 
-  setTimeout(
-    () => {
-      printWindow.print();
-    },
-    300
-  );
+  // ===================================================
+  // ESPERAR A QUE CARGUE EL LOGO
+  // ===================================================
 
-}
-
-
-// =====================================================
-// PDF INDIVIDUAL
-// =====================================================
-
-function exportPdfReport(report) {
-
-  if (!report) return;
-
-  if (
-    !window.jspdf ||
-    !window.jspdf.jsPDF
-  ) {
-
-    alert(
-      "La biblioteca PDF todavía no está disponible."
+  const logo =
+    printWindow.document.querySelector(
+      ".imss-logo"
     );
 
-    return;
+
+  if (logo) {
+
+    logo.onload = () => {
+
+      printWindow.focus();
+
+      printWindow.print();
+
+    };
+
+
+    logo.onerror = () => {
+
+      console.warn(
+        "No se pudo cargar el logotipo IMSS."
+      );
+
+      printWindow.focus();
+
+      printWindow.print();
+
+    };
+
+  } else {
+
+    printWindow.focus();
+
+    setTimeout(
+      () => {
+        printWindow.print();
+      },
+      500
+    );
 
   }
 
-  const {
-    jsPDF
-  } = window.jspdf;
-
-  const doc =
-    new jsPDF();
-
-  doc.setFontSize(16);
-
-  doc.text(
-    "FARMACOVIGILANCIA",
-    14,
-    18
-  );
-
-  doc.setFontSize(11);
-
-  doc.text(
-    "UMAE Hospital de Pediatría del CMN Siglo XXI",
-    14,
-    26
-  );
-
-  doc.text(
-    "Reporte de sospecha de reacción adversa a medicamentos (SRAM)",
-    14,
-    34
-  );
-
-  const body =
-    Object.entries(report)
-      .map(
-        ([key, value]) => [
-          humanizeField(key),
-          formatValue(value)
-        ]
-      );
-
-
-  doc.autoTable({
-    startY: 42,
-    head: [
-      ["Campo", "Información"]
-    ],
-    body: body,
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      overflow: "linebreak"
-    },
-    columnStyles: {
-      0: {
-        cellWidth: 55
-      },
-      1: {
-        cellWidth: 125
-      }
-    }
-  });
-
-
-  doc.save(
-    `SRAM-${report.folio}.pdf`
-  );
-
 }
-
 
 // =====================================================
 // PDF DETALLE
