@@ -2449,6 +2449,335 @@ function exportCurrentPdf() {
 
 }
 
+// =====================================================
+// GENERAR PDF DEL REPORTE
+// =====================================================
+
+function exportPdfReport(report) {
+
+  if (!report) return;
+
+  const rowsHtml =
+    Object.entries(report)
+      .map(([key, value]) => `
+        <tr>
+          <th>
+            ${esc(humanizeField(key))}
+          </th>
+
+          <td>
+            ${esc(formatValue(value))}
+          </td>
+        </tr>
+      `)
+      .join("");
+
+  const pdfWindow =
+    window.open(
+      "",
+      "_blank",
+      "width=900,height=1000"
+    );
+
+  if (!pdfWindow) {
+
+    alert(
+      "El navegador bloqueó la ventana. Permite ventanas emergentes para este sitio."
+    );
+
+    return;
+  }
+
+  pdfWindow.document.write(`
+
+    <!doctype html>
+
+    <html lang="es">
+
+    <head>
+
+      <meta charset="utf-8">
+
+      <title>
+        Reporte SRAM ${esc(report.folio)}
+      </title>
+
+      <style>
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+
+          font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+          margin: 30px;
+
+          color: #222;
+
+          background: white;
+
+        }
+
+        .header {
+
+          display: flex;
+
+          align-items: center;
+
+          justify-content: space-between;
+
+          gap: 20px;
+
+          border-bottom: 3px solid #176b4d;
+
+          padding-bottom: 15px;
+
+          margin-bottom: 20px;
+
+        }
+
+        .header-text {
+
+          flex: 1;
+
+          text-align: center;
+
+        }
+
+        .imss {
+
+          font-size: 21px;
+
+          font-weight: bold;
+
+          margin-bottom: 7px;
+
+        }
+
+        .cdfv {
+
+          font-size: 16px;
+
+          font-weight: bold;
+
+          margin-bottom: 10px;
+
+        }
+
+        .title {
+
+          font-size: 14px;
+
+          font-weight: bold;
+
+        }
+
+        .logo {
+
+          width: 90px;
+
+          height: auto;
+
+          object-fit: contain;
+
+        }
+
+        .identificacion {
+
+          background: #f5f5f5;
+
+          border: 1px solid #ccc;
+
+          padding: 12px;
+
+          margin-bottom: 20px;
+
+        }
+
+        .identificacion p {
+
+          margin: 4px 0;
+
+        }
+
+        table {
+
+          width: 100%;
+
+          border-collapse: collapse;
+
+        }
+
+        th,
+        td {
+
+          border: 1px solid #ccc;
+
+          padding: 9px;
+
+          vertical-align: top;
+
+        }
+
+        th {
+
+          width: 32%;
+
+          text-align: left;
+
+          background: #f1f5f3;
+
+        }
+
+        td {
+
+          white-space: pre-wrap;
+
+          word-break: break-word;
+
+        }
+
+        .footer {
+
+          margin-top: 30px;
+
+          padding-top: 10px;
+
+          border-top: 1px solid #ccc;
+
+          text-align: center;
+
+          font-size: 10px;
+
+          color: #666;
+
+        }
+
+        @media print {
+
+          body {
+
+            margin: 15mm;
+
+          }
+
+          .header {
+
+            break-inside: avoid;
+
+          }
+
+          tr {
+
+            page-break-inside: avoid;
+
+          }
+
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      <div class="header">
+
+        <div class="header-text">
+
+          <div class="imss">
+
+            INSTITUTO MEXICANO DEL SEGURO SOCIAL
+
+          </div>
+
+          <div class="cdfv">
+
+            CENTRO INSTITUCIONAL COORDINADOR DE FARMACOVIGILANCIA
+
+          </div>
+
+          <div class="title">
+
+            AVISO DE SOSPECHAS DE REACCIONES ADVERSAS DE MEDICAMENTOS
+
+          </div>
+
+        </div>
+
+        <img
+          src="imss-logo.png"
+          class="logo"
+          alt="IMSS"
+        >
+
+      </div>
+
+      <div class="identificacion">
+
+        <p>
+
+          <strong>Folio:</strong>
+
+          ${esc(report.folio)}
+
+        </p>
+
+        <p>
+
+          <strong>Fecha de notificación:</strong>
+
+          ${esc(
+            formatValue(
+              report.fecha_notificacion ||
+              report.created_at
+            )
+          )}
+
+        </p>
+
+      </div>
+
+      <table>
+
+        <tbody>
+
+          ${rowsHtml}
+
+        </tbody>
+
+      </table>
+
+      <div class="footer">
+
+        Reporte generado desde el sistema administrativo
+        de Farmacovigilancia SRAM.
+
+      </div>
+
+    </body>
+
+    </html>
+
+  `);
+
+  pdfWindow.document.close();
+
+  setTimeout(() => {
+
+    pdfWindow.focus();
+
+    pdfWindow.print();
+
+  }, 800);
+
+}
+
 
 // =====================================================
 // PDF MÚLTIPLE
