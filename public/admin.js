@@ -220,6 +220,8 @@ function showAdmin(user) {
   userEmail.textContent =
     user.email || "";
 
+  checkPasswordExpiration(user);
+
 }
 
 
