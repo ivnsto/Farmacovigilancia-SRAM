@@ -151,6 +151,35 @@
           <strong id="userEmail"></strong>
         </p>
 
+<div
+  id="passwordSecurity"
+  style="
+    margin-top:15px;
+    padding:15px;
+    background:#f4f6f7;
+    border-radius:10px;
+    border-left:4px solid #14532d;
+  "
+>
+  <strong>🔐 Seguridad de la cuenta</strong>
+
+  <p
+    id="passwordStatus"
+    class="note"
+    style="margin:8px 0;"
+  >
+    Verificando estado de la contraseña...
+  </p>
+
+  <button
+    id="changePasswordBtn"
+    class="secondary"
+    type="button"
+  >
+    🔑 Cambiar contraseña
+  </button>
+</div>
+        
       </div>
 
       <button
@@ -758,6 +787,123 @@
 
 </div>
 
+<!-- ================================================= -->
+<!-- MODAL CAMBIO DE CONTRASEÑA -->
+<!-- ================================================= -->
+
+<div
+  id="passwordModal"
+  hidden
+  style="
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    z-index:11000;
+    padding:20px;
+    overflow:auto;
+  "
+>
+  <div
+    class="card"
+    style="
+      max-width:500px;
+      margin:60px auto;
+    "
+  >
+
+    <h2>
+      🔐 Cambiar contraseña
+    </h2>
+
+    <p class="note">
+      Por seguridad, la contraseña debe actualizarse cada 90 días.
+    </p>
+
+    <form id="passwordForm">
+
+      <div class="field">
+
+        <label for="currentPassword">
+          Contraseña actual
+        </label>
+
+        <input
+          type="password"
+          id="currentPassword"
+          required
+          autocomplete="current-password"
+        >
+
+      </div>
+
+      <br>
+
+      <div class="field">
+
+        <label for="newPassword">
+          Nueva contraseña
+        </label>
+
+        <input
+          type="password"
+          id="newPassword"
+          required
+          minlength="8"
+          autocomplete="new-password"
+        >
+
+        <span class="small">
+          Mínimo 8 caracteres.
+        </span>
+
+      </div>
+
+      <br>
+
+      <div class="field">
+
+        <label for="confirmPassword">
+          Confirmar nueva contraseña
+        </label>
+
+        <input
+          type="password"
+          id="confirmPassword"
+          required
+          minlength="8"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          type="submit"
+        >
+          💾 Cambiar contraseña
+        </button>
+
+        <button
+          class="secondary"
+          id="cancelPassword"
+          type="button"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+      <p
+        id="passwordMsg"
+        class="status"
+      ></p>
+
+    </form>
+
+  </div>
+</div>  
 
 <script src="admin.js"></script>
 
