@@ -3276,4 +3276,589 @@ document
 // INICIO
 // =====================================================
 
+// =====================================================
+// SEGURIDAD DE CONTRASEÑA
+// CAMBIO OBLIGATORIO CADA 90 DÍAS
+// =====================================================
+
+const PASSWORD_MAX_DAYS = 90;
+const PASSWORD_WARNING_DAYS = 15;
+
+
+// =====================================================
+// COMPROBAR ANTIGÜEDAD DE CONTRASEÑA
+// =====================================================
+
+async function checkPasswordExpiration(user) {
+
+  const passwordStatus =
+    document.getElementById("passwordStatus");
+
+  if (!passwordStatus || !user) {
+    return;
+  }
+
+  passwordStatus.textContent =
+    "Verificando estado de la contraseña...";
+
+
+  const {
+    data,
+    error
+  } =
+    await sb
+      .from("sram_password_control")
+      .select("password_changed_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+
+  if (error) {
+
+    console.error(
+      "Error consultando seguridad:",
+      error
+    );
+
+    passwordStatus.textContent =
+      "No se pudo verificar la antigüedad de la contraseña.";
+
+    return;
+  }
+
+
+  // ===================================================
+  // PRIMER REGISTRO
+  // ===================================================
+
+  if (!data) {
+
+    const {
+      error: insertError
+    } =
+      await sb
+        .from("sram_password_control")
+        .insert({
+          user_id: user.id,
+          password_changed_at:
+            new Date().toISOString()
+        });
+
+
+    if (insertError) {
+
+      console.error(
+        "Error registrando contraseña:",
+        insertError
+      );
+
+      passwordStatus.textContent =
+        "No se pudo registrar la fecha de seguridad.";
+
+      return;
+    }
+
+
+    passwordStatus.textContent =
+      "Contraseña vigente. El periodo de seguridad inicia hoy.";
+
+    return;
+  }
+
+
+  // ===================================================
+  // CALCULAR DÍAS
+  // ===================================================
+
+  const changedAt =
+    new Date(
+      data.password_changed_at
+    );
+
+  const now =
+    new Date();
+
+
+  const milliseconds =
+    now.getTime() -
+    changedAt.getTime();
+
+
+  const days =
+    Math.floor(
+      milliseconds /
+      (1000 * 60 * 60 * 24)
+    );
+
+
+  const daysRemaining =
+    PASSWORD_MAX_DAYS - days;
+
+
+  // ===================================================
+  // CONTRASEÑA VENCIDA
+  // ===================================================
+
+  if (days >= PASSWORD_MAX_DAYS) {
+
+    passwordStatus.innerHTML =
+      "<strong style='color:#a20d0d'>" +
+      "⚠️ La contraseña ha vencido." +
+      "</strong><br>" +
+      "Debes cambiarla para continuar.";
+
+    // Ocultar completamente el contenido administrativo
+    // excepto el área de seguridad.
+
+    lockAdminPanel();
+
+    openPasswordModal(true);
+
+    return;
+  }
+
+
+  // ===================================================
+  // AVISO PREVENTIVO
+  // ===================================================
+
+  if (
+    daysRemaining <= PASSWORD_WARNING_DAYS
+  ) {
+
+    passwordStatus.innerHTML =
+      "<strong style='color:#9a6700'>" +
+      "⚠️ Tu contraseña vence en " +
+      daysRemaining +
+      " días." +
+      "</strong>";
+
+  } else {
+
+    passwordStatus.textContent =
+      "Contraseña vigente. Faltan " +
+      daysRemaining +
+      " días para el cambio obligatorio.";
+  }
+
+}
+
+
+// =====================================================
+// BLOQUEAR PANEL POR CONTRASEÑA VENCIDA
+// =====================================================
+
+function lockAdminPanel() {
+
+  const elements =
+    adminPanel.querySelectorAll(
+      "input, select, textarea, button"
+    );
+
+
+  elements.forEach(element => {
+
+    // Mantener disponible:
+    // - cambiar contraseña
+    // - cerrar sesión
+
+    if (
+      element.id === "changePasswordBtn" ||
+      element.id === "logout"
+    ) {
+      return;
+    }
+
+    element.disabled = true;
+
+  });
+
+
+  const security =
+    document.getElementById(
+      "passwordSecurity"
+    );
+
+
+  if (security) {
+
+    security.style.border =
+      "2px solid #a20d0d";
+
+    security.style.background =
+      "#fff5f5";
+  }
+
+}
+
+
+// =====================================================
+// ABRIR MODAL DE CAMBIO DE CONTRASEÑA
+// =====================================================
+
+function openPasswordModal(force = false) {
+
+  const modal =
+    document.getElementById(
+      "passwordModal"
+    );
+
+
+  if (!modal) {
+    return;
+  }
+
+
+  modal.hidden = false;
+
+
+  if (force) {
+
+    const cancel =
+      document.getElementById(
+        "cancelPassword"
+      );
+
+    if (cancel) {
+
+      cancel.style.display =
+        "none";
+    }
+  }
+
+}
+
+
+// =====================================================
+// CERRAR MODAL
+// =====================================================
+
+function closePasswordModal() {
+
+  const modal =
+    document.getElementById(
+      "passwordModal"
+    );
+
+
+  if (!modal) {
+    return;
+  }
+
+
+  modal.hidden = true;
+
+
+  const form =
+    document.getElementById(
+      "passwordForm"
+    );
+
+
+  if (form) {
+    form.reset();
+  }
+
+
+  const msg =
+    document.getElementById(
+      "passwordMsg"
+    );
+
+
+  if (msg) {
+    msg.textContent = "";
+  }
+
+}
+
+
+// =====================================================
+// CAMBIAR CONTRASEÑA
+// =====================================================
+
+async function changePassword(event) {
+
+  event.preventDefault();
+
+
+  const currentPassword =
+    document.getElementById(
+      "currentPassword"
+    ).value;
+
+
+  const newPassword =
+    document.getElementById(
+      "newPassword"
+    ).value;
+
+
+  const confirmPassword =
+    document.getElementById(
+      "confirmPassword"
+    ).value;
+
+
+  const passwordMsg =
+    document.getElementById(
+      "passwordMsg"
+    );
+
+
+  passwordMsg.textContent =
+    "Verificando contraseña actual...";
+
+
+  passwordMsg.style.color =
+    "";
+
+
+  // ===================================================
+  // VALIDACIONES
+  // ===================================================
+
+  if (
+    !currentPassword ||
+    !newPassword ||
+    !confirmPassword
+  ) {
+
+    passwordMsg.textContent =
+      "Completa todos los campos.";
+
+    return;
+  }
+
+
+  if (newPassword.length < 8) {
+
+    passwordMsg.textContent =
+      "La nueva contraseña debe tener al menos 8 caracteres.";
+
+    return;
+  }
+
+
+  if (newPassword !== confirmPassword) {
+
+    passwordMsg.textContent =
+      "Las nuevas contraseñas no coinciden.";
+
+    return;
+  }
+
+
+  if (
+    currentPassword === newPassword
+  ) {
+
+    passwordMsg.textContent =
+      "La nueva contraseña debe ser diferente de la actual.";
+
+    return;
+  }
+
+
+  // ===================================================
+  // OBTENER USUARIO
+  // ===================================================
+
+  const {
+    data: {
+      user
+    }
+  } =
+    await sb.auth.getUser();
+
+
+  if (!user) {
+
+    passwordMsg.textContent =
+      "La sesión ha expirado. Inicia sesión nuevamente.";
+
+    return;
+  }
+
+
+  // ===================================================
+  // VERIFICAR CONTRASEÑA ACTUAL
+  // ===================================================
+
+  const {
+    error: loginError
+  } =
+    await sb.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword
+    });
+
+
+  if (loginError) {
+
+    console.error(
+      loginError
+    );
+
+    passwordMsg.textContent =
+      "La contraseña actual es incorrecta.";
+
+    return;
+  }
+
+
+  // ===================================================
+  // ACTUALIZAR CONTRASEÑA
+  // ===================================================
+
+  passwordMsg.textContent =
+    "Actualizando contraseña...";
+
+
+  const {
+    error: updateError
+  } =
+    await sb.auth.updateUser({
+      password: newPassword
+    });
+
+
+  if (updateError) {
+
+    console.error(
+      updateError
+    );
+
+    passwordMsg.textContent =
+      "No se pudo cambiar la contraseña: " +
+      updateError.message;
+
+    return;
+  }
+
+
+  // ===================================================
+  // REGISTRAR NUEVA FECHA
+  // ===================================================
+
+  const {
+    error: dateError
+  } =
+    await sb
+      .from("sram_password_control")
+      .upsert({
+        user_id: user.id,
+        password_changed_at:
+          new Date().toISOString(),
+        updated_at:
+          new Date().toISOString()
+      });
+
+
+  if (dateError) {
+
+    console.error(
+      dateError
+    );
+
+    passwordMsg.textContent =
+      "La contraseña cambió, pero no se pudo registrar la nueva fecha de seguridad.";
+
+    return;
+  }
+
+
+  // ===================================================
+  // ÉXITO
+  // ===================================================
+
+  passwordMsg.textContent =
+    "✅ Contraseña cambiada correctamente.";
+
+
+  passwordMsg.style.color =
+    "#14532d";
+
+
+  const passwordStatus =
+    document.getElementById(
+      "passwordStatus"
+    );
+
+
+  if (passwordStatus) {
+
+    passwordStatus.textContent =
+      "Contraseña actualizada. El próximo cambio obligatorio será en 90 días.";
+  }
+
+
+  // Reactivar panel
+  const elements =
+    adminPanel.querySelectorAll(
+      "input, select, textarea, button"
+    );
+
+
+  elements.forEach(element => {
+
+    element.disabled = false;
+
+  });
+
+
+  const security =
+    document.getElementById(
+      "passwordSecurity"
+    );
+
+
+  if (security) {
+
+    security.style.border =
+      "2px solid #14532d";
+
+    security.style.background =
+      "#f4f6f7";
+  }
+
+
+  setTimeout(
+    () => {
+      closePasswordModal();
+    },
+    1200
+  );
+
+}
+
+
+// =====================================================
+// EVENTOS DE SEGURIDAD
+// =====================================================
+
+document
+  .getElementById("changePasswordBtn")
+  .addEventListener(
+    "click",
+    () => openPasswordModal(false)
+  );
+
+
+document
+  .getElementById("cancelPassword")
+  .addEventListener(
+    "click",
+    closePasswordModal
+  );
+
+
+document
+  .getElementById("passwordForm")
+  .addEventListener(
+    "submit",
+    changePassword
+  );
+
+
 checkSession();
