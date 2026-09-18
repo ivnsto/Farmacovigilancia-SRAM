@@ -3864,3 +3864,206 @@ document
 
 
 checkSession();
+
+// =====================================================
+// CAMBIO DE CONTRASEÑA
+// =====================================================
+
+const changePasswordBtn = document.getElementById("changePasswordBtn");
+const passwordModal = document.getElementById("passwordModal");
+const passwordForm = document.getElementById("passwordForm");
+const cancelPassword = document.getElementById("cancelPassword");
+const passwordMsg = document.getElementById("passwordMsg");
+
+if (changePasswordBtn) {
+  changePasswordBtn.addEventListener("click", () => {
+
+    passwordForm.reset();
+    passwordMsg.textContent = "";
+    passwordMsg.style.color = "";
+
+    passwordModal.hidden = false;
+
+  });
+}
+
+
+if (cancelPassword) {
+  cancelPassword.addEventListener("click", () => {
+
+    passwordModal.hidden = true;
+    passwordForm.reset();
+    passwordMsg.textContent = "";
+
+  });
+}
+
+
+if (passwordForm) {
+  passwordForm.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    passwordMsg.textContent = "Verificando contraseña...";
+    passwordMsg.style.color = "";
+
+    const currentPassword =
+      document.getElementById("currentPassword").value.trim();
+
+    const newPassword =
+      document.getElementById("newPassword").value;
+
+    const confirmPassword =
+      document.getElementById("confirmPassword").value;
+
+
+    // ---------------------------------------------
+    // VALIDACIONES
+    // ---------------------------------------------
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+
+      passwordMsg.textContent =
+        "Completa todos los campos.";
+
+      return;
+    }
+
+
+    if (newPassword.length < 8) {
+
+      passwordMsg.textContent =
+        "La nueva contraseña debe tener al menos 8 caracteres.";
+
+      return;
+    }
+
+
+    if (newPassword !== confirmPassword) {
+
+      passwordMsg.textContent =
+        "Las nuevas contraseñas no coinciden.";
+
+      return;
+    }
+
+
+    if (currentPassword === newPassword) {
+
+      passwordMsg.textContent =
+        "La nueva contraseña debe ser diferente de la actual.";
+
+      return;
+    }
+
+
+    try {
+
+      // ---------------------------------------------
+      // OBTENER USUARIO ACTUAL
+      // ---------------------------------------------
+
+      const {
+        data: {
+          user
+        },
+        error: userError
+      } = await sb.auth.getUser();
+
+
+      if (userError || !user) {
+
+        throw new Error(
+          "No se pudo identificar al usuario actual."
+        );
+
+      }
+
+
+      // ---------------------------------------------
+      // VERIFICAR CONTRASEÑA ACTUAL
+      // ---------------------------------------------
+
+      const {
+        error: loginError
+      } = await sb.auth.signInWithPassword({
+
+        email: user.email,
+
+        password: currentPassword
+
+      });
+
+
+      if (loginError) {
+
+        passwordMsg.textContent =
+          "La contraseña actual es incorrecta.";
+
+        return;
+      }
+
+
+      // ---------------------------------------------
+      // ACTUALIZAR CONTRASEÑA
+      // ---------------------------------------------
+
+      passwordMsg.textContent =
+        "Actualizando contraseña...";
+
+
+      const {
+        error: updateError
+      } = await sb.auth.updateUser({
+
+        password: newPassword
+
+      });
+
+
+      if (updateError) {
+
+        throw updateError;
+
+      }
+
+
+      // ---------------------------------------------
+      // ÉXITO
+      // ---------------------------------------------
+
+      passwordMsg.textContent =
+        "Contraseña actualizada correctamente.";
+
+      passwordMsg.style.color = "#14532d";
+
+
+      passwordForm.reset();
+
+
+      setTimeout(() => {
+
+        passwordModal.hidden = true;
+
+        passwordMsg.textContent = "";
+
+      }, 2000);
+
+
+    } catch (error) {
+
+      console.error(
+        "Error al cambiar contraseña:",
+        error
+      );
+
+      passwordMsg.textContent =
+        error.message ||
+        "No fue posible actualizar la contraseña.";
+
+      passwordMsg.style.color = "#8b1e1e";
+
+    }
+
+  });
+}
